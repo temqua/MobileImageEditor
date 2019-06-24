@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/contrast_item"
+        android:icon="@drawable/ic_tonality_primary_24dp"
+        android:title="@string/contrast" />
+
+    <item
+        android:id="@+id/filter_item"
+        android:icon="@drawable/ic_filter_black_24dp"
+        android:title="@string/filter" />
+
+    <item
+        android:id="@+id/contours_item"
+        android:icon="@drawable/ic_details_black_24dp"
+        android:title="@string/contours" />
+</menu>
