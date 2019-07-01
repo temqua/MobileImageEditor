@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     Bitmap bitmapSource;
     ProgressBar progressBar;
     TextView statusView;
-    OperationName currentOperation;
     BottomNavigationView bottomNavBar;
     private static final int READ_REQUEST_CODE = 1337;
 
@@ -84,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void changeImage(View view){
 
+        OperationName currentOperation = OperationName.EQUALIZE_CONTRAST;
+
         switch (view.getId()){
             case R.id.contours_analyze:
                 currentOperation = OperationName.CONTOURS;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (BitmapSource.getBitmapSource() != null) {
             ChangeImageTask changeImageTask = new ChangeImageTask();
-            changeImageTask.execute();
+            changeImageTask.execute(currentOperation);
 
         } else {
             OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    class ChangeImageTask extends AsyncTask<Void, Integer, Bitmap> {
+    private class ChangeImageTask extends AsyncTask<OperationName, Integer, Bitmap> {
 
         private long start;
 
@@ -169,8 +170,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Bitmap doInBackground(Void... params) {
+        protected Bitmap doInBackground(OperationName... params) {
             try {
+                OperationName currentOperation = params[0];
                 switch (currentOperation) {
                     case EQUALIZE_CONTRAST:
                         return equalizeHistogram(BitmapSource.getBitmapSource());
@@ -195,7 +197,8 @@ public class MainActivity extends AppCompatActivity {
             long timeConsumedMillis = finish - start;
             double timeConsumed = (double)timeConsumedMillis / 60000;
             NumberFormat formatter = new DecimalFormat("#0.000");
-            statusView.setText("Изображение обработано. " + getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
+            statusView.setText("Изображение обработано. ");
+            execTimeTextView.setText(getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
             mImageView.setImageBitmap(result);
         }
 
@@ -266,19 +269,14 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 }
-                publishProgress(i/width * 100);
+                double progress = (double)i/width * 100;
+
+                publishProgress((int)progress);
             }
             return newImage;
         }
     }
 
-//    class OpenImageTask extends AsyncTask<Bitmap, Void, Void> {
-//
-//        @Override
-//        protected Void doInBackground(Bitmap... bitmaps) {
-//            return null;
-//        }
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -311,15 +309,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class OpenImageTask extends AsyncTask<Uri, Void, Void> {
+    private class OpenImageTask extends AsyncTask<Uri, Void, Void> {
 
         ProgressDialog progressDialog;
 
         @Override
         protected Void doInBackground(Uri... uris) {
             BitmapSource.setBitmapSource(getBitmapFromUri(uris[0]));
-            Void result = null;
-            return result;
+            return null;
         }
 
         @Override
