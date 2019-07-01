@@ -14,18 +14,18 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:adjustViewBounds="false"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@+id/execTimeTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"></ImageView>
+        app:layout_constraintTop_toTopOf="parent"></ImageView>
 
 
     <TextView
         android:id="@+id/execTimeTextView"
-        android:layout_width="183dp"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="16dp"
         android:layout_marginBottom="162dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/imageView" />
@@ -35,9 +35,10 @@
         android:id="@+id/statusView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="1dp"
         android:text="@string/open_image"
-        app:layout_constraintStart_toStartOf="@+id/progressBar"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/execTimeTextView" />
 
     <ProgressBar
@@ -45,6 +46,7 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/processingFragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/statusView" />
@@ -55,8 +57,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="55dp"
-        android:layout_marginBottom="55dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="67dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/execTimeTextView" />

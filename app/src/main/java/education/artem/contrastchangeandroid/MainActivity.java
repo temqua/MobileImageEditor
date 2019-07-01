@@ -33,6 +33,8 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
 import education.artem.contrastchangeandroid.fragments.ContourFragment;
@@ -49,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     TextView statusView;
     BottomNavigationView bottomNavBar;
+    ResourceBundle bundle = ResourceBundle.getBundle("ResourceBundle", ProjectLocale.getProjectLocale());
     private static final int READ_REQUEST_CODE = 1337;
-
 
 
     @Override
@@ -68,15 +70,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void createInformationAlert(String message){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Информация")
+        builder.setTitle(bundle.getString("key.information"))
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                .setPositiveButton("Ок", (dialog, which) -> dialog.cancel());
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -84,10 +81,11 @@ public class MainActivity extends AppCompatActivity {
     public void changeImage(View view){
 
         OperationName currentOperation = OperationName.EQUALIZE_CONTRAST;
-
+        AsyncTask task = null;
         switch (view.getId()){
             case R.id.contours_analyze:
                 currentOperation = OperationName.CONTOURS;
+                task = new ContrastChangeTask(MainActivity.this);
                 break;
             case R.id.contrast_change:
                 currentOperation = OperationName.EQUALIZE_CONTRAST;
@@ -96,8 +94,9 @@ public class MainActivity extends AppCompatActivity {
                 currentOperation = OperationName.FILTERING;
         }
         if (BitmapSource.getBitmapSource() != null) {
-            ChangeImageTask changeImageTask = new ChangeImageTask();
-            changeImageTask.execute(currentOperation);
+//            ChangeImageTask changeImageTask = new ChangeImageTask();
+//            changeImageTask.execute(currentOperation);
+            task.execute(currentOperation);
 
         } else {
             OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
@@ -108,24 +107,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.contours_item:
-                    loadFragment(new ContourFragment());
-                    return true;
-                case R.id.contrast_item:
-                    loadFragment(new ContrastFragment());
-                    return true;
-                case R.id.filter_item:
-                    loadFragment(new FilterFragment());
-                    return true;
-            }
-            return false;
-        }
-    };
+            = item -> {
+                switch (item.getItemId()) {
+                    case R.id.contours_item:
+                        loadFragment(new ContourFragment());
+                        return true;
+                    case R.id.contrast_item:
+                        loadFragment(new ContrastFragment());
+                        return true;
+                    case R.id.filter_item:
+                        loadFragment(new FilterFragment());
+                        return true;
+                }
+                return false;
+            };
 
 
     private void loadFragment(Fragment fragment) {
@@ -309,7 +304,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     private class OpenImageTask extends AsyncTask<Uri, Void, Void> {
+
 
         ProgressDialog progressDialog;
 

@@ -18,12 +18,10 @@ public class OpenImageDialogFragment extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Ошибка!")
                 .setMessage("Откройте изображение!")
-                .setPositiveButton("Открыть", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Закрываем окно
-                        dialog.cancel();
-                        ((MainActivity)Objects.requireNonNull(getActivity())).performFileSearch();
-                    }
+                .setPositiveButton("Открыть", (dialog, id) -> {
+                    // Закрываем окно
+                    dialog.cancel();
+                    ((MainActivity)Objects.requireNonNull(getActivity())).performFileSearch();
                 });
         return builder.create();
     }
