@@ -75,4 +75,11 @@
 
     </android.support.design.widget.BottomNavigationView>
 
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="395dp"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="411dp" />
+
 </android.support.constraint.ConstraintLayout>
