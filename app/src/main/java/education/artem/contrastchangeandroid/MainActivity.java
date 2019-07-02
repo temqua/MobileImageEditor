@@ -2,7 +2,6 @@ package education.artem.contrastchangeandroid;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,14 +32,13 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 import education.artem.contrastchangeandroid.fragments.ContourFragment;
 import education.artem.contrastchangeandroid.fragments.ContrastFragment;
 import education.artem.contrastchangeandroid.fragments.FilterFragment;
 import education.artem.contrastchangeandroid.fragments.OpenImageDialogFragment;
+import education.artem.contrastchangeandroid.tasks.ContoursTask;
+import education.artem.contrastchangeandroid.tasks.ContrastChangeTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     TextView statusView;
     BottomNavigationView bottomNavBar;
-    ResourceBundle bundle = ResourceBundle.getBundle("ResourceBundle", ProjectLocale.getProjectLocale());
     private static final int READ_REQUEST_CODE = 1337;
 
 
@@ -70,10 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void createInformationAlert(String message){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(bundle.getString("key.information"))
+        builder.setTitle(getResources().getString(R.string.info))
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("Ок", (dialog, which) -> dialog.cancel());
+                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -81,21 +78,20 @@ public class MainActivity extends AppCompatActivity {
     public void changeImage(View view){
 
         OperationName currentOperation = OperationName.EQUALIZE_CONTRAST;
-        AsyncTask task = null;
+        AsyncTask<OperationName, Integer, Bitmap> task = null;
         switch (view.getId()){
             case R.id.contours_analyze:
                 currentOperation = OperationName.CONTOURS;
-                task = new ContrastChangeTask(MainActivity.this);
+                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
             case R.id.contrast_change:
                 currentOperation = OperationName.EQUALIZE_CONTRAST;
+                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
             case R.id.filtration:
                 currentOperation = OperationName.FILTERING;
         }
         if (BitmapSource.getBitmapSource() != null) {
-//            ChangeImageTask changeImageTask = new ChangeImageTask();
-//            changeImageTask.execute(currentOperation);
             task.execute(currentOperation);
 
         } else {
@@ -161,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             this.start = System.currentTimeMillis();
-            statusView.setText("Ведётся обработка изображения");
+            statusView.setText("Processing image");
         }
 
         @Override
@@ -192,8 +188,8 @@ public class MainActivity extends AppCompatActivity {
             long timeConsumedMillis = finish - start;
             double timeConsumed = (double)timeConsumedMillis / 60000;
             NumberFormat formatter = new DecimalFormat("#0.000");
-            statusView.setText("Изображение обработано. ");
-            execTimeTextView.setText(getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
+            statusView.setText("Image successfully handled");
+            execTimeTextView.setText(getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " min");
             mImageView.setImageBitmap(result);
         }
 

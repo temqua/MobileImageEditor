@@ -1,30 +1,28 @@
-package education.artem.contrastchangeandroid;
+package education.artem.contrastchangeandroid.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class ContrastChangeTask extends AsyncTask<OperationName, Integer, Bitmap> {
+import education.artem.contrastchangeandroid.BitmapSource;
+import education.artem.contrastchangeandroid.Histogram;
+import education.artem.contrastchangeandroid.OperationName;
+import education.artem.contrastchangeandroid.ProcessTask;
 
-    private long start;
-    private MainActivity activity;
+public class ContrastChangeTask extends ProcessTask {
 
-    public ContrastChangeTask(MainActivity activity){
-        this.activity = activity;
 
+    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec){
+        super(currContext, imageView, status, progress, exec);
     }
 
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        this.start = System.currentTimeMillis();
-        statusView.setText("Ведётся обработка изображения");
-    }
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
@@ -40,23 +38,6 @@ public class ContrastChangeTask extends AsyncTask<OperationName, Integer, Bitmap
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    protected void onProgressUpdate(Integer... values){
-        progressBar.setProgress(values[0]);
-    }
-
-    @Override
-    protected void onPostExecute(Bitmap result) {
-        super.onPostExecute(result);
-        long finish = System.currentTimeMillis();
-        long timeConsumedMillis = finish - start;
-        double timeConsumed = (double)timeConsumedMillis / 60000;
-        NumberFormat formatter = new DecimalFormat("#0.000");
-        statusView.setText("Изображение обработано. ");
-        execTimeTextView.setText(getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
-        mImageView.setImageBitmap(result);
     }
 
     public Histogram buildImageHistogram(Bitmap image) {

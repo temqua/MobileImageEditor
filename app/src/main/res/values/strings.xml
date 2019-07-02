@@ -9,6 +9,8 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="execution_time">Время выполнения</string>
+    <string name="execution_time">Execution time</string>
     <string name="open_image">Open image</string>
+    <string name="info">Information</string>
+    <string name="processing_image">Processing image</string>
 </resources>
