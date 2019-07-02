@@ -2,6 +2,7 @@ package education.artem.contrastchangeandroid;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,10 +23,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -64,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
         bottomNavBar =  findViewById(R.id.bottomNavBar);
         bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         readImage();
+        ArrayAdapter<String> data = new ArrayAdapter<String>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
+        data.add("Linear");
+        data.add("Equalize");
+        createSelectDialog(data);
     }
 
     public void createInformationAlert(String message){
@@ -76,10 +83,27 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
+    private void createSelectDialog(ArrayAdapter<String> data) {
+
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
+        builderSingle.setTitle("Select One Name:");
+
+        builderSingle.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
+        builderSingle.setAdapter(data, (dialog, which) -> {
+            String strName = data.getItem(which);
+            Toast.makeText(getApplicationContext(), strName, Toast.LENGTH_LONG).show();
+        });
+        builderSingle.show();
+    }
+
     public void changeImage(View view){
 
         OperationName currentOperation = OperationName.EQUALIZE_CONTRAST;
         AsyncTask<OperationName, Integer, Bitmap> task = null;
+        ArrayAdapter<String> data = new ArrayAdapter<String>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
+        data.add("Linear");
+        data.add("Equalize");
+
         switch (view.getId()){
             case R.id.contours_analyze:
                 currentOperation = OperationName.CONTOURS;
