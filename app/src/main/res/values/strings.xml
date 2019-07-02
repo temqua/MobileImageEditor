@@ -13,4 +13,19 @@
     <string name="open_image">Open image</string>
     <string name="info">Information</string>
     <string name="processing_image">Processing image</string>
+    <string-array name="contrast_array">
+        <item>Linear</item>
+        <item>Histogram equalize</item>
+    </string-array>
+    <string-array name="contours_array">
+        <item>Prewitt</item>
+        <item>Laplacian</item>
+    </string-array>
+    <string-array name="filter_array">
+        <item>3x3</item>
+        <item>5x5</item>
+        <item>7x7</item>
+        <item>9x9</item>
+        <item>11x11</item>
+    </string-array>
 </resources>
