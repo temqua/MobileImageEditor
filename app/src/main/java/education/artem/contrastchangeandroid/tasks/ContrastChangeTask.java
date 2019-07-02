@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -31,7 +32,7 @@ public class ContrastChangeTask extends ProcessTask {
             switch (currentOperation) {
                 case EQUALIZE_CONTRAST:
                     return equalizeHistogram(BitmapSource.getBitmapSource());
-                case FILTERING:
+                case LINEAR_CONTRAST:
                     return equalizeHistogram(BitmapSource.getBitmapSource());
             }
         } catch (Exception e) {
@@ -113,4 +114,60 @@ public class ContrastChangeTask extends ProcessTask {
         }
         return newImage;
     }
+
+    public Bitmap linearContrast(Bitmap image, int threshold){
+        Bitmap newImage = image.copy(image.getConfig(), true);
+        ByteBuffer pixelBuffer = ByteBuffer.allocate(image.getByteCount());
+        ByteBuffer resultBuffer = ByteBuffer.allocate(image.getByteCount());
+        image.copyPixelsToBuffer(pixelBuffer);
+
+        double contrastLevel = Math.pow((100.0 + threshold) / 100.0, 2);
+
+
+        double blue = 0;
+        double green = 0;
+        double red = 0;
+
+
+        for (int k = 0; k + 4 < pixelBuffer.array().length; k += 4)
+        {
+            blue = ((((pixelBuffer.array()[k] / 255.0) - 0.5) *
+                    contrastLevel) + 0.5) * 255.0;
+
+
+            green = ((((pixelBuffer.array()[k + 1] / 255.0) - 0.5) *
+                    contrastLevel) + 0.5) * 255.0;
+
+
+            red = ((((pixelBuffer.array()[k + 2] / 255.0) - 0.5) *
+                    contrastLevel) + 0.5) * 255.0;
+
+
+            if  (blue > 255)
+            { blue = 255; }
+            else if  (blue < 0)
+            { blue = 0; }
+
+
+            if (green > 255)
+            { green = 255; }
+            else if (green < 0)
+            { green = 0; }
+
+
+            if (red > 255)
+            { red = 255; }
+            else if (red < 0)
+            { red = 0; }
+
+
+            pixelBuffer.array()[k] = (byte)blue;
+            pixelBuffer.array()[k + 1] = (byte)green;
+            pixelBuffer.array()[k + 2] = (byte)red;
+        }
+
+        newImage.copyPixelsFromBuffer(resultBuffer);
+        return newImage;
+    }
+
 }

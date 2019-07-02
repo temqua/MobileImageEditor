@@ -22,7 +22,7 @@ public class ContoursTask extends ProcessTask {
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, true);
+        return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
     }
 
     public Bitmap ConvolutionFilter(Bitmap sourceBitmap,
@@ -32,19 +32,10 @@ public class ContoursTask extends ProcessTask {
                                            int bias,
                                            boolean grayscale)
     {
-//        BitmapData sourceData = sourceBitmap.LockBits(new Rectangle(0, 0,
-//                        sourceBitmap.Width, sourceBitmap.Height),
-//                ImageLockMode.ReadOnly,
-//                PixelFormat.Format32bppArgb);
         ByteBuffer pixelBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
-//        Buffer pixelBuffer = new byte[sourceBitmap.getWidth() * sourceBitmap.getHeight()];
-//        byte[] resultBuffer = new byte[sourceBitmap.getWidth() * sourceBitmap.getHeight()];
-
-//        Marshal.Copy(sourceData.Scan0, pixelBuffer, 0, pixelBuffer.Length);
-//        sourceBitmap.UnlockBits(sourceData);
         sourceBitmap.copyPixelsToBuffer(pixelBuffer);
-        if (grayscale == true)
+        if (grayscale)
         {
             float rgb = 0;
 
@@ -77,7 +68,8 @@ public class ContoursTask extends ProcessTask {
         int calcOffset = 0;
 
         int byteOffset = 0;
-
+        double progress = 0;
+        int top = sourceBitmap.getHeight() - filterOffset;
         for (int offsetY = filterOffset; offsetY <
                 sourceBitmap.getHeight() - filterOffset; offsetY++)
         {
@@ -90,7 +82,7 @@ public class ContoursTask extends ProcessTask {
                 blueTotal = greenTotal = redTotal = 0.0;
 
                 byteOffset = offsetY *
-                        sourceBitmap.getWidth() +
+                        sourceBitmap.getRowBytes() +
                         offsetX * 4;
 
                 for (int filterY = -filterOffset;
@@ -101,7 +93,7 @@ public class ContoursTask extends ProcessTask {
                     {
                         calcOffset = byteOffset +
                                 (filterX * 4) +
-                                (filterY *  sourceBitmap.getWidth());
+                                (filterY *  sourceBitmap.getRowBytes());
 
                         blueX += (double)(pixelBuffer.array()[calcOffset]) * xFilterMatrix[filterY + filterOffset][filterX + filterOffset];
 
@@ -146,17 +138,13 @@ public class ContoursTask extends ProcessTask {
                 resultBuffer.array()[byteOffset + 2] = (byte)(redTotal);
                 resultBuffer.array()[byteOffset + 3] = (byte)255;
             }
+
+            progress = (double) offsetY / top * 100;
+            publishProgress((int) progress);
         }
 
-        Bitmap resultBitmap = Bitmap.createBitmap(sourceBitmap);
+        Bitmap resultBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
 
-//        BitmapData resultData = resultBitmap.LockBits(new Rectangle(0, 0,
-//                        resultBitmap.Width, resultBitmap.Height),
-//                ImageLockMode.WriteOnly,
-//                PixelFormat.Format32bppArgb);
-
-//        Marshal.Copy(resultBuffer, 0, resultData.Scan0, resultBuffer.Length);
-//        resultBitmap.UnlockBits(resultData);
         resultBitmap.copyPixelsFromBuffer(resultBuffer);
         return resultBitmap;
     }
