@@ -10,6 +10,7 @@
         android:id="@+id/contours_analyze"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
         android:onClick="changeImage"
@@ -20,9 +21,9 @@
 
     <Spinner
         android:id="@+id/contoursSpinner"
-        android:layout_width="142dp"
-        android:layout_height="38dp"
-        android:layout_marginTop="12dp"
+        android:layout_width="182dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:spinnerMode="dialog"
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,11 +31,11 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="130dp"
-        android:layout_height="44dp"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:text="Choose edge detection method"
+        android:layout_marginEnd="8dp"
+        android:text="Edge detection method"
         app:layout_constraintEnd_toStartOf="@+id/contoursSpinner"
         app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

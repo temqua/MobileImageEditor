@@ -27,8 +27,7 @@ public class ContourFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        return inflater.inflate(
-                R.layout.contour_parameters, container, false);
+        return v;
     }
 
 

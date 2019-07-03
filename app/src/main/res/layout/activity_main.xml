@@ -13,6 +13,7 @@
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:adjustViewBounds="false"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@+id/execTimeTextView"
@@ -24,9 +25,10 @@
 
     <TextView
         android:id="@+id/execTimeTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="93dp"
         android:layout_height="16dp"
-        android:layout_marginBottom="162dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="161dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/imageView" />
 
@@ -46,22 +48,9 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/processingFragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/statusView" />
-
-    <fragment
-        android:id="@+id/processingFragment"
-        android:name="education.artem.contrastchangeandroid.fragments.ContrastFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="55dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/execTimeTextView" />
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottomNavBar"
@@ -70,16 +59,23 @@
         android:background="@color/lightGrey"
         app:elevation="3dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/processingFragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom">
 
     </android.support.design.widget.BottomNavigationView>
 
-    <Spinner
-        android:id="@+id/spinner"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="395dp"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="411dp" />
+        android:layout_height="53dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

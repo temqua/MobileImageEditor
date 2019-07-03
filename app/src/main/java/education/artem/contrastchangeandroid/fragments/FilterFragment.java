@@ -25,8 +25,7 @@ public class FilterFragment extends Fragment {
                 R.array.filter_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        return inflater.inflate(
-                R.layout.filter_parameters, container, false);
+        return v;
     }
 
 }

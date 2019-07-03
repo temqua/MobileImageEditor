@@ -47,7 +47,6 @@ import education.artem.contrastchangeandroid.tasks.MedianFilterTask;
 public class MainActivity extends AppCompatActivity {
 
     ImageView mImageView;
-    Button changeImage;
     TextView execTimeTextView;
     Bitmap bitmapSource;
     ProgressBar progressBar;
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         statusView = findViewById(R.id.statusView);
         bottomNavBar =  findViewById(R.id.bottomNavBar);
         bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        loadFragment(new ContrastFragment());
         readImage();
     }
 
@@ -96,9 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
         OperationName currentOperation = OperationName.EQUALIZE_CONTRAST;
         AsyncTask<OperationName, Integer, Bitmap> task = null;
-        ArrayAdapter<String> data = new ArrayAdapter<String>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
-        data.add("Linear");
-        data.add("Equalize");
 
         switch (view.getId()){
             case R.id.contours_analyze:
@@ -145,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.processingFragment, fragment);
+        ft.replace(R.id.fragment_container, fragment);
         ft.commit();
     }
 
