@@ -1,5 +1,6 @@
 package education.artem.contrastchangeandroid.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -19,14 +20,11 @@ public class ContourFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
-        Spinner spinner = container.findViewById(R.id.contoursSpinner);
-// Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.contours_array, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
+        View v = inflater.inflate(R.layout.contour_parameters, container, false);
+        Spinner spinner = v.findViewById(R.id.contoursSpinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.contours_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
         return inflater.inflate(

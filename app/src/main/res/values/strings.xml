@@ -19,7 +19,13 @@
     </string-array>
     <string-array name="contours_array">
         <item>Prewitt</item>
-        <item>Laplacian</item>
+        <item>Prewitt grayscale</item>
+        <item>Sobel</item>
+        <item>Sobel grayscale</item>
+        <item>Laplacian 3x3</item>
+        <item>Laplacian 3x3 grayscale</item>
+        <item>Laplacian 5x5</item>
+        <item>Laplacian 5x5 grayscale</item>
     </string-array>
     <string-array name="filter_array">
         <item>3x3</item>

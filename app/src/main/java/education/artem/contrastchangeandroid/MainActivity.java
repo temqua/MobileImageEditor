@@ -67,10 +67,6 @@ public class MainActivity extends AppCompatActivity {
         bottomNavBar =  findViewById(R.id.bottomNavBar);
         bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         readImage();
-        ArrayAdapter<String> data = new ArrayAdapter<String>(MainActivity.this, android.R.layout.select_dialog_singlechoice);
-        data.add("Linear");
-        data.add("Equalize");
-        createSelectDialog(data);
     }
 
     public void createInformationAlert(String message){
@@ -86,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private void createSelectDialog(ArrayAdapter<String> data) {
 
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(MainActivity.this);
-        builderSingle.setTitle("Select One Name:");
+        builderSingle.setTitle("Select Algorithm:");
 
         builderSingle.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
         builderSingle.setAdapter(data, (dialog, which) -> {

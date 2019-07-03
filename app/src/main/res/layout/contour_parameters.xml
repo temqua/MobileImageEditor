@@ -2,7 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout2"
+    android:id="@+id/contours_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,25 +14,27 @@
         android:layout_marginEnd="8dp"
         android:onClick="changeImage"
         android:text="Analyze"
-        app:layout_constraintEnd_toStartOf="@+id/contoursSpinner"
-        app:layout_constraintHorizontal_bias="0.024"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
         android:id="@+id/contoursSpinner"
-        android:layout_width="147dp"
-        android:layout_height="20dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="142dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
         android:spinnerMode="dialog"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="132dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="130dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="12dp"
         android:text="Choose edge detection method"
-        tools:layout_editor_absoluteX="132dp"
-        tools:layout_editor_absoluteY="4dp" />
+        app:layout_constraintEnd_toStartOf="@+id/contoursSpinner"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
