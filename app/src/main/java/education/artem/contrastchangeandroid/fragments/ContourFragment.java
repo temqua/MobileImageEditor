@@ -7,9 +7,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import education.artem.contrastchangeandroid.CurrentOperation;
+import education.artem.contrastchangeandroid.OperationName;
 import education.artem.contrastchangeandroid.R;
 
 public class ContourFragment extends Fragment {
@@ -26,9 +29,44 @@ public class ContourFragment extends Fragment {
                 R.array.contours_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                String selected = adapter.getItem(position).toString();
+                switch (selected) {
+                    case "Prewitt":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_PREWITT);
+                        break;
+                    case "Prewitt grayscale":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_PREWITT_GRAYSCALE);
+                        break;
+                    case "Sobel":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_SOBEL);
+                        break;
+                    case "Sobel grayscale":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_SOBEL_GRAYSCALE);
+                        break;
+                    case "Laplacian 3x3":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_3X3);
+                        break;
+                    case "Laplacian 3x3 grayscale":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_3X3_GRAYSCALE);
+                        break;
+                    case "Laplacian 5x5":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_5X5);
+                        break;
+                    case "Laplacian 5x5 grayscale":
+                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_5X5_GRAYSCALE);
+                        break;
+                }
+            } // to close the onItemSelected
+            public void onNothingSelected(AdapterView<?> parent)
+            {
 
+            }
+        });
         return v;
     }
-
 
 }

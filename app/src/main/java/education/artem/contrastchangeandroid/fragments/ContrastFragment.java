@@ -6,9 +6,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import education.artem.contrastchangeandroid.CurrentOperation;
+import education.artem.contrastchangeandroid.OperationName;
 import education.artem.contrastchangeandroid.R;
 
 
@@ -23,8 +26,29 @@ public class ContrastFragment extends Fragment {
                 R.array.contrast_array, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                String selected = adapter.getItem(position).toString();
+                switch (selected) {
+                    case "Linear":
+                        CurrentOperation.setCurrentOperation(OperationName.LINEAR_CONTRAST);
+                        break;
+                    case "Histogram equalize":
+                        CurrentOperation.setCurrentOperation(OperationName.EQUALIZE_CONTRAST);
+                        break;
+                }
+            } // to close the onItemSelected
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
 
         return v;
     }
+
+
 
 }

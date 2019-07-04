@@ -33,7 +33,7 @@ public class ContrastChangeTask extends ProcessTask {
                 case EQUALIZE_CONTRAST:
                     return equalizeHistogram(BitmapSource.getBitmapSource());
                 case LINEAR_CONTRAST:
-                    return equalizeHistogram(BitmapSource.getBitmapSource());
+                    return linearContrast(BitmapSource.getBitmapSource(), 50);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,11 +116,10 @@ public class ContrastChangeTask extends ProcessTask {
     }
 
     public Bitmap linearContrast(Bitmap image, int threshold){
-        Bitmap newImage = image.copy(image.getConfig(), true);
         ByteBuffer pixelBuffer = ByteBuffer.allocate(image.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(image.getByteCount());
         image.copyPixelsToBuffer(pixelBuffer);
-
+        Bitmap newImage = image.copy(image.getConfig(), true);
         double contrastLevel = Math.pow((100.0 + threshold) / 100.0, 2);
 
 
@@ -131,16 +130,16 @@ public class ContrastChangeTask extends ProcessTask {
 
         for (int k = 0; k + 4 < pixelBuffer.array().length; k += 4)
         {
-            blue = ((((pixelBuffer.array()[k] / 255.0) - 0.5) *
-                    contrastLevel) + 0.5) * 255.0;
+            blue = ((((pixelBuffer.array()[k]) - 0.5) *
+                    contrastLevel) + 0.5);
 
 
-            green = ((((pixelBuffer.array()[k + 1] / 255.0) - 0.5) *
-                    contrastLevel) + 0.5) * 255.0;
+            green = ((((pixelBuffer.array()[k + 1]) - 0.5) *
+                    contrastLevel) + 0.5);
 
 
-            red = ((((pixelBuffer.array()[k + 2] / 255.0) - 0.5) *
-                    contrastLevel) + 0.5) * 255.0;
+            red = ((((pixelBuffer.array()[k + 2]) - 0.5) *
+                    contrastLevel) + 0.5);
 
 
             if  (blue > 255)

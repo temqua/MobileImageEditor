@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int READ_REQUEST_CODE = 1337;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,26 +95,22 @@ public class MainActivity extends AppCompatActivity {
 
     public void changeImage(View view){
 
-        OperationName currentOperation = OperationName.EQUALIZE_CONTRAST;
         AsyncTask<OperationName, Integer, Bitmap> task = null;
 
         switch (view.getId()){
             case R.id.contours_analyze:
-                currentOperation = OperationName.CONTOURS;
                 task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
             case R.id.contrast_change:
-                currentOperation = OperationName.EQUALIZE_CONTRAST;
                 task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
             case R.id.filtration:
-                currentOperation = OperationName.FILTERING;
                 task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
         }
         if (BitmapSource.getBitmapSource() != null) {
             if (task != null) {
-                task.execute(currentOperation);
+                task.execute(CurrentOperation.getCurrentOperation());
             }
         } else {
             OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
@@ -228,6 +225,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private int calculateInSampleSize(BitmapFactory.Options options,
+                                            int reqWidth, int reqHeight) {
+        // Реальные размеры изображения
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Вычисляем наибольший inSampleSize, который будет кратным двум
+            // и оставит полученные размеры больше, чем требуемые
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
+    }
+
     private Bitmap getBitmapFromUri(Uri uri) {
         ParcelFileDescriptor parcelFileDescriptor = null;
         try {
@@ -235,7 +254,13 @@ public class MainActivity extends AppCompatActivity {
                     getContentResolver().openFileDescriptor(uri, "r");
             assert parcelFileDescriptor != null;
             FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+            options.inSampleSize = calculateInSampleSize(options, 600,
+                    600);
+            options.inJustDecodeBounds = false;
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
             parcelFileDescriptor.close();
             return image;
         } catch (Exception e) {

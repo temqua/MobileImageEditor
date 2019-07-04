@@ -22,6 +22,18 @@ public class MedianFilterTask extends ProcessTask {
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
+        switch(params[0]) {
+            case FILTER_3x3:
+                return MedianFilter(BitmapSource.getBitmapSource(), 3, 0, false);
+            case FILTER_5x5:
+                return MedianFilter(BitmapSource.getBitmapSource(), 5, 0, false);
+            case FILTER_7x7:
+                return MedianFilter(BitmapSource.getBitmapSource(), 7, 0, false);
+            case FILTER_9x9:
+                return MedianFilter(BitmapSource.getBitmapSource(), 9, 0, false);
+            case FILTER_11x11:
+                return MedianFilter(BitmapSource.getBitmapSource(), 11, 0, false);
+        }
         return MedianFilter(BitmapSource.getBitmapSource(), 3, 0, false);
     }
 
