@@ -53,6 +53,9 @@ public class ContoursTask extends ProcessTask {
 
         ByteBuffer pixelBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
+        int height = sourceBitmap.getHeight();
+        int width = sourceBitmap.getWidth();
+        int stride = sourceBitmap.getRowBytes();
         sourceBitmap.copyPixelsToBuffer(pixelBuffer);
         if (grayscale)
         {
@@ -83,20 +86,20 @@ public class ContoursTask extends ProcessTask {
 
         int byteOffset = 0;
         double progress = 0;
-        int top = sourceBitmap.getHeight() - filterOffset;
+        int top = height - filterOffset;
 
         for (int offsetY = filterOffset; offsetY <
-                sourceBitmap.getHeight() - filterOffset; offsetY++)
+                height - filterOffset; offsetY++)
         {
             for (int offsetX = filterOffset; offsetX <
-                    sourceBitmap.getWidth() - filterOffset; offsetX++)
+                    width - filterOffset; offsetX++)
             {
                 blue = 0;
                 green = 0;
                 red = 0;
 
                 byteOffset = offsetY *
-                        sourceBitmap.getRowBytes() +
+                        stride +
                         offsetX * 4;
 
                 for (int filterY = -filterOffset;
@@ -108,7 +111,7 @@ public class ContoursTask extends ProcessTask {
 
                         calcOffset = byteOffset +
                                 (filterX * 4) +
-                                (filterY * sourceBitmap.getRowBytes());
+                                (filterY * stride);
 
                         blue += (double)(pixelBuffer.array()[calcOffset]) *
                                 filterMatrix[filterY + filterOffset][filterX + filterOffset];

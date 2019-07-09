@@ -257,8 +257,8 @@ public class MainActivity extends AppCompatActivity {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-            options.inSampleSize = calculateInSampleSize(options, 600,
-                    600);
+            options.inSampleSize = calculateInSampleSize(options, 1000,
+                    1000);
             options.inJustDecodeBounds = false;
             Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
             parcelFileDescriptor.close();

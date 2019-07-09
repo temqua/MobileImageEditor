@@ -33,7 +33,7 @@ public class ContrastChangeTask extends ProcessTask {
                 case EQUALIZE_CONTRAST:
                     return equalizeHistogram(BitmapSource.getBitmapSource());
                 case LINEAR_CONTRAST:
-                    return linearContrast(BitmapSource.getBitmapSource(), 50);
+                    return adjustContrast(BitmapSource.getBitmapSource(), 0.5);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,6 +115,42 @@ public class ContrastChangeTask extends ProcessTask {
         return newImage;
     }
 
+    public Bitmap adjustContrast(Bitmap image, double threshold) {
+        Bitmap newImage = image.copy(image.getConfig(), true);
+        int height = (int)image.getHeight() ;
+        int width = (int)image.getWidth();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
+                    int R = 0;
+                    int G = 0;
+                    int B = 0;
+                    int color = image.getPixel(i - 1, j - 1);
+                    int indexR = Color.red(color);
+                    int indexG = Color.green(color);
+                    int indexB = Color.blue(color);
+                    double red = (((double)indexR/255 - 0.5) * threshold + 0.5) * 255;
+                    double green = (((double)indexG/255 - 0.5) * threshold + 0.5) * 255;
+                    double blue = (((double)indexB/255 - 0.5) * threshold + 0.5) * 255;
+
+                    indexR = (int) red;
+                    indexR = indexR > 255 ? 255 : indexR;
+                    indexR = indexR < 0 ? 0 : indexR;
+                    indexG = (int) green;
+                    indexG = indexG > 255 ? 255 : indexG;
+                    indexG = indexG < 0 ? 0 : indexG;
+                    indexB = (int) blue;
+                    indexB = indexB > 255 ? 255 : indexB;
+                    indexB = indexB < 0 ? 0 : indexB;
+                    newImage.setPixel(i, j, Color.rgb(indexR, indexG, indexB));
+                }
+            }
+            double progress = (double)i/width * 100;
+            publishProgress((int)progress);
+        }
+        return newImage;
+    }
+
     public Bitmap linearContrast(Bitmap image, int threshold){
         ByteBuffer pixelBuffer = ByteBuffer.allocate(image.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(image.getByteCount());
@@ -126,19 +162,21 @@ public class ContrastChangeTask extends ProcessTask {
         double blue = 0;
         double green = 0;
         double red = 0;
-
+        Integer blueInt;
+        Integer greenInt;
+        Integer redInt;
 
         for (int k = 0; k + 4 < pixelBuffer.array().length; k += 4)
         {
-            blue = ((((pixelBuffer.array()[k]) - 0.5) *
+            blue = ((((pixelBuffer.array()[k]/255) - 0.5) *
                     contrastLevel) + 0.5);
 
 
-            green = ((((pixelBuffer.array()[k + 1]) - 0.5) *
+            green = ((((pixelBuffer.array()[k + 1]/255) - 0.5) *
                     contrastLevel) + 0.5);
 
 
-            red = ((((pixelBuffer.array()[k + 2]) - 0.5) *
+            red = ((((pixelBuffer.array()[k + 2]/255) - 0.5) *
                     contrastLevel) + 0.5);
 
 
@@ -160,9 +198,12 @@ public class ContrastChangeTask extends ProcessTask {
             { red = 0; }
 
 
-            pixelBuffer.array()[k] = (byte)blue;
-            pixelBuffer.array()[k + 1] = (byte)green;
-            pixelBuffer.array()[k + 2] = (byte)red;
+            blueInt = (int) blue;
+            greenInt = (int) green;
+            redInt = (int) red;
+            pixelBuffer.array()[k] = blueInt.byteValue();
+            pixelBuffer.array()[k + 1] = greenInt.byteValue();
+            pixelBuffer.array()[k + 2] = redInt.byteValue();
         }
 
         newImage.copyPixelsFromBuffer(resultBuffer);

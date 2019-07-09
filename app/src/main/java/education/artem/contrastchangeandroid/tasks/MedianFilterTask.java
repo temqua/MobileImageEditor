@@ -44,7 +44,9 @@ public class MedianFilterTask extends ProcessTask {
 
         ByteBuffer pixelBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
-
+        int height = sourceBitmap.getHeight();
+        int width = sourceBitmap.getWidth();
+        int stride = sourceBitmap.getRowBytes();
         sourceBitmap.copyPixelsToBuffer(pixelBuffer);
 
         if (grayscale) {
@@ -69,17 +71,17 @@ public class MedianFilterTask extends ProcessTask {
 
         int byteOffset = 0;
         double progress = 0;
-        int top = sourceBitmap.getHeight() - filterOffset;
+        int top = height - filterOffset;
         List<Integer> neighbourPixels = new ArrayList<Integer>();
         byte[] middlePixel;
 
 
         for (int offsetY = filterOffset; offsetY <
-                sourceBitmap.getHeight() - filterOffset; offsetY++) {
+                height - filterOffset; offsetY++) {
             for (int offsetX = filterOffset; offsetX <
-                    sourceBitmap.getWidth() - filterOffset; offsetX++) {
+                    width - filterOffset; offsetX++) {
                 byteOffset = offsetY *
-                        sourceBitmap.getRowBytes() +
+                        stride +
                         offsetX * 4;
 
 
@@ -94,7 +96,7 @@ public class MedianFilterTask extends ProcessTask {
 
                         calcOffset = byteOffset +
                                 (filterX * 4) +
-                                (filterY * sourceBitmap.getRowBytes());
+                                (filterY * stride);
                         neighbourPixels.add(pixelBuffer.getInt(calcOffset));
 
                     }
