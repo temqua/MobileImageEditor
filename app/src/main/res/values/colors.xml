@@ -7,4 +7,6 @@
     <color name="darkBrown">#3e2723</color>
     <color name="darkGrey">#263238</color>
     <color name="lightGrey">#9E9E9E</color>
+    <color name="textLight">#F5F5F5</color>
+    <color name="white">#FFFFFF</color>
 </resources>

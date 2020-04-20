@@ -6,36 +6,59 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/algorithmTextView"
+        android:layout_width="72dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="112dp"
+        android:text="@string/algorithm"
+        app:layout_constraintEnd_toStartOf="@+id/filterParameterText"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/filter_algorithm_spinner"
+        android:layout_width="138dp"
+        android:layout_height="22dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="44dp"
+        app:layout_constraintEnd_toStartOf="@+id/filter_parameter_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/algorithmTextView" />
+
     <Button
         android:id="@+id/filtration"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/colorPrimary"
         android:onClick="changeImage"
         android:text="@string/filter"
-        app:layout_constraintEnd_toStartOf="@+id/textView2"
-        app:layout_constraintHorizontal_bias="0.5"
+        android:textColor="@color/textLight"
+        app:layout_constraintEnd_toStartOf="@+id/algorithmTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
-        android:id="@+id/filter_spinner"
-        android:layout_width="110dp"
-        android:layout_height="44dp"
+        android:id="@+id/filter_parameter_spinner"
+        android:layout_width="71dp"
+        android:layout_height="23dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="44dp"
+        android:layout_marginEnd="40dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/filterParameterText" />
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="76dp"
-        android:layout_height="21dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="20dp"
-        android:text="Matrix size"
-        app:layout_constraintEnd_toStartOf="@+id/filter_spinner"
+        android:id="@+id/filterParameterText"
+        android:layout_width="69dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="40dp"
+        android:text="@string/filterParam"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/contours_layout"
@@ -8,35 +8,30 @@
 
     <Button
         android:id="@+id/contours_analyze"
-        android:layout_width="wrap_content"
+        android:layout_width="109dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_weight="3"
+        android:background="@color/colorPrimary"
         android:onClick="changeImage"
         android:text="Analyze"
-        app:layout_constraintEnd_toStartOf="@+id/textView"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Spinner
-        android:id="@+id/contoursSpinner"
-        android:layout_width="164dp"
-        android:layout_height="34dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:spinnerMode="dialog"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/textLight" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="100dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Edge detection method"
-        app:layout_constraintEnd_toStartOf="@+id/contoursSpinner"
-        app:layout_constraintTop_toTopOf="parent" />
-</android.support.constraint.ConstraintLayout>
+        android:layout_width="109dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="0dp"
+        android:layout_weight="2"
+        android:text="Edge detection method" />
+
+    <Spinner
+        android:id="@+id/contoursSpinner"
+        android:layout_width="175dp"
+        android:layout_height="47dp"
+        android:layout_weight="10"
+        android:spinnerMode="dialog" />
+
+</LinearLayout>

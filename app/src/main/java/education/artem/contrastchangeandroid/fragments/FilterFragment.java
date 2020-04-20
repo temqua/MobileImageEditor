@@ -1,20 +1,16 @@
 package education.artem.contrastchangeandroid.fragments;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-
-import java.util.Objects;
+import android.widget.TextView;
 
 import education.artem.contrastchangeandroid.CurrentOperation;
-import education.artem.contrastchangeandroid.MainActivity;
 import education.artem.contrastchangeandroid.OperationName;
 import education.artem.contrastchangeandroid.R;
 
@@ -23,16 +19,69 @@ public class FilterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.filter_parameters, container, false);
-        Spinner spinner = v.findViewById(R.id.filter_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.filter_array, android.R.layout.simple_spinner_dropdown_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-            {
-                String selected = adapter.getItem(position).toString();
+        Spinner algorithmSpinner = v.findViewById(R.id.filter_algorithm_spinner);
+        Spinner parameterSpinner = v.findViewById(R.id.filter_parameter_spinner);
+        TextView filterParameterText = v.findViewById(R.id.filterParameterText);
+        ArrayAdapter<CharSequence> filterAlgorithm = ArrayAdapter.createFromResource(getActivity(),
+                R.array.filter_algorithm_array, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> filterParameter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.median_filter_array, android.R.layout.simple_spinner_dropdown_item);
+        filterParameter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        algorithmSpinner.setAdapter(filterAlgorithm);
+        algorithmSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = filterAlgorithm.getItem(position).toString();
+                switch (selected) {
+                    case "Median filter":
+                        parameterSpinner.setVisibility(View.VISIBLE);
+                        filterParameterText.setVisibility(View.VISIBLE);
+                        break;
+                    case "Gamma correction":
+                        parameterSpinner.setVisibility(View.INVISIBLE);
+                        filterParameterText.setVisibility(View.INVISIBLE);
+                        CurrentOperation.setCurrentOperation(OperationName.GAMMA_CORRECTION);
+                        break;
+                    case "Blur":
+                        parameterSpinner.setVisibility(View.INVISIBLE);
+                        filterParameterText.setVisibility(View.INVISIBLE);
+                        CurrentOperation.setCurrentOperation(OperationName.BLUR);
+                        break;
+                    case "Gaussian blur":
+                        parameterSpinner.setVisibility(View.INVISIBLE);
+                        filterParameterText.setVisibility(View.INVISIBLE);
+                        CurrentOperation.setCurrentOperation(OperationName.GAUSSIAN_BLUR);
+                        break;
+                    case "Emboss":
+                        parameterSpinner.setVisibility(View.INVISIBLE);
+                        filterParameterText.setVisibility(View.INVISIBLE);
+                        CurrentOperation.setCurrentOperation(OperationName.EMBOSS);
+                        break;
+                    case "Identity":
+                        parameterSpinner.setVisibility(View.INVISIBLE);
+                        filterParameterText.setVisibility(View.INVISIBLE);
+                        CurrentOperation.setCurrentOperation(OperationName.IDENTITY);
+                        break;
+                    case "Sharpen":
+                        parameterSpinner.setVisibility(View.INVISIBLE);
+                        filterParameterText.setVisibility(View.INVISIBLE);
+                        CurrentOperation.setCurrentOperation(OperationName.SHARPEN);
+                        break;
+                    case "Bilateral":
+                        CurrentOperation.setCurrentOperation(OperationName.BILATERAL);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        parameterSpinner.setAdapter(filterParameter);
+        parameterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = filterParameter.getItem(position).toString();
                 switch (selected) {
                     case "3x3":
                         CurrentOperation.setCurrentOperation(OperationName.FILTER_3x3);
@@ -51,8 +100,8 @@ public class FilterFragment extends Fragment {
                         break;
                 }
             } // to close the onItemSelected
-            public void onNothingSelected(AdapterView<?> parent)
-            {
+
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });

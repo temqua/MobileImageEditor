@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ImageEditor</string>
-    <string name="open_file">Open</string>
+    <string name="open_file">Open Image</string>
+    <string name="save_file">Save Image</string>
     <string name="linear_contrast">Linear</string>
     <string name="contrast">Contrast</string>
     <string name="filter">Filter</string>
@@ -12,7 +13,10 @@
     <string name="execution_time">Execution time</string>
     <string name="open_image">Open image</string>
     <string name="info">Information</string>
+    <string name="algorithm">Algorithm</string>
     <string name="processing_image">Processing image</string>
+    <string name="close">Close</string>
+    <string name="filterParam">Matrix size</string>
     <string-array name="contrast_array">
         <item>Linear</item>
         <item>Histogram equalize</item>
@@ -27,7 +31,17 @@
         <item>Laplacian 5x5</item>
         <item>Laplacian 5x5 grayscale</item>
     </string-array>
-    <string-array name="filter_array">
+    <string-array name="filter_algorithm_array">
+        <item>Median filter</item>
+        <item>Gamma correction</item>
+        <item>Blur</item>
+        <item>Gaussian blur</item>
+        <item>Sharpen</item>
+        <item>Emboss</item>
+        <item>Identity</item>
+        <item>Bilateral</item>
+    </string-array>
+    <string-array name="median_filter_array">
         <item>3x3</item>
         <item>5x5</item>
         <item>7x7</item>

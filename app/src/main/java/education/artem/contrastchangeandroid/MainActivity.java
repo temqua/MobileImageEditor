@@ -143,7 +143,10 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    public void performFileSave() {
 
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+    }
 
     public void performFileSearch() {
 
@@ -169,8 +172,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == R.id.open_file_item){
-            performFileSearch();
+        switch (item.getItemId()) {
+            case R.id.open_file_item:
+                performFileSearch();
+                break;
+            case R.id.saveImage:
+                break;
+            case R.id.closeItem:
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
+                break;
         }
 
         return super.onOptionsItemSelected(item);
