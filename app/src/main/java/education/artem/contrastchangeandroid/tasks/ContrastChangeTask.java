@@ -3,16 +3,13 @@ package education.artem.contrastchangeandroid.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.nio.ByteBuffer;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
-import education.artem.contrastchangeandroid.BitmapSource;
+import education.artem.contrastchangeandroid.BitmapHandle;
 import education.artem.contrastchangeandroid.Histogram;
 import education.artem.contrastchangeandroid.OperationName;
 import education.artem.contrastchangeandroid.ProcessTask;
@@ -31,9 +28,9 @@ public class ContrastChangeTask extends ProcessTask {
             OperationName currentOperation = params[0];
             switch (currentOperation) {
                 case EQUALIZE_CONTRAST:
-                    return equalizeHistogram(BitmapSource.getBitmapSource());
+                    return equalizeHistogram(BitmapHandle.getBitmapSource());
                 case LINEAR_CONTRAST:
-                    return adjustContrast(BitmapSource.getBitmapSource(), 0.5);
+                    return adjustContrast(BitmapHandle.getBitmapSource(), 0.5);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,8 +114,8 @@ public class ContrastChangeTask extends ProcessTask {
 
     public Bitmap adjustContrast(Bitmap image, double threshold) {
         Bitmap newImage = image.copy(image.getConfig(), true);
-        int height = (int)image.getHeight() ;
-        int width = (int)image.getWidth();
+        int height = image.getHeight();
+        int width = image.getWidth();
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
@@ -159,9 +156,9 @@ public class ContrastChangeTask extends ProcessTask {
         double contrastLevel = Math.pow((100.0 + threshold) / 100.0, 2);
 
 
-        double blue = 0;
-        double green = 0;
-        double red = 0;
+        double blue;
+        double green;
+        double red;
         Integer blueInt;
         Integer greenInt;
         Integer redInt;

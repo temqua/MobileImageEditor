@@ -1,18 +1,22 @@
 package education.artem.contrastchangeandroid;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -24,7 +28,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,9 +35,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 import education.artem.contrastchangeandroid.fragments.ContourFragment;
 import education.artem.contrastchangeandroid.fragments.ContrastFragment;
@@ -53,31 +55,39 @@ public class MainActivity extends AppCompatActivity {
     TextView statusView;
     BottomNavigationView bottomNavBar;
     private static final int READ_REQUEST_CODE = 1337;
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = item -> {
+        switch (item.getItemId()) {
+            case R.id.contours_item:
+                loadFragment(new ContourFragment());
+                return true;
+            case R.id.contrast_item:
+                loadFragment(new ContrastFragment());
+                return true;
+            case R.id.filter_item:
+                loadFragment(new FilterFragment());
+                return true;
+        }
+        return false;
+    };
 
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mImageView =  findViewById(R.id.imageView);
-        execTimeTextView = findViewById(R.id.execTimeTextView);
-        progressBar =  findViewById(R.id.progressBar);
-        statusView = findViewById(R.id.statusView);
-        bottomNavBar =  findViewById(R.id.bottomNavBar);
-        bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        loadFragment(new ContrastFragment());
-        readImage();
-    }
-
-    public void createInformationAlert(String message){
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(getResources().getString(R.string.info))
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
-        AlertDialog alert = builder.create();
-        alert.show();
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
     }
 
     private void createSelectDialog(ArrayAdapter<String> data) {
@@ -93,59 +103,36 @@ public class MainActivity extends AppCompatActivity {
         builderSingle.show();
     }
 
-    public void changeImage(View view){
-
-        AsyncTask<OperationName, Integer, Bitmap> task = null;
-
-        switch (view.getId()){
-            case R.id.contours_analyze:
-                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
-                break;
-            case R.id.contrast_change:
-                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
-                break;
-            case R.id.filtration:
-                task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
-                break;
-        }
-        if (BitmapSource.getBitmapSource() != null) {
-            if (task != null) {
-                task.execute(CurrentOperation.getCurrentOperation());
-            }
-        } else {
-            OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
-            FragmentManager manager = getSupportFragmentManager();
-            FragmentTransaction transaction = manager.beginTransaction();
-            myDialogFragment.show(transaction, "dialog");
-        }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        verifyStoragePermissions(this);
+        mImageView = findViewById(R.id.imageView);
+        execTimeTextView = findViewById(R.id.execTimeTextView);
+        progressBar = findViewById(R.id.progressBar);
+        statusView = findViewById(R.id.statusView);
+        bottomNavBar = findViewById(R.id.bottomNavBar);
+        bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        loadFragment(new ContrastFragment());
+        readImage();
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item -> {
-                switch (item.getItemId()) {
-                    case R.id.contours_item:
-                        loadFragment(new ContourFragment());
-                        return true;
-                    case R.id.contrast_item:
-                        loadFragment(new ContrastFragment());
-                        return true;
-                    case R.id.filter_item:
-                        loadFragment(new FilterFragment());
-                        return true;
-                }
-                return false;
-            };
+    public void createInformationAlert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(getResources().getString(R.string.info))
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 
 
     private void loadFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, fragment);
         ft.commit();
-    }
-
-    public void performFileSave() {
-
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
     }
 
     public void performFileSearch() {
@@ -168,23 +155,31 @@ public class MainActivity extends AppCompatActivity {
         // END_INCLUDE (use_open_document_intent)
     }
 
+    public void changeImage(View view) {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+        AsyncTask<OperationName, Integer, Bitmap> task = null;
 
-        switch (item.getItemId()) {
-            case R.id.open_file_item:
-                performFileSearch();
+        switch (view.getId()) {
+            case R.id.contours_analyze:
+                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
-            case R.id.saveImage:
+            case R.id.contrast_change:
+                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
-            case R.id.closeItem:
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
+            case R.id.filtration:
+                task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
         }
-
-        return super.onOptionsItemSelected(item);
+        if (BitmapHandle.getBitmapSource() != null) {
+            if (task != null) {
+                task.execute(CurrentOperation.getCurrentOperation());
+            }
+        } else {
+            OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            myDialogFragment.show(transaction, "dialog");
+        }
     }
 
     @Override
@@ -208,36 +203,59 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-
-    private class OpenImageTask extends AsyncTask<Uri, Void, Void> {
-
-
-        ProgressDialog progressDialog;
-
-        @Override
-        protected Void doInBackground(Uri... uris) {
-            BitmapSource.setBitmapSource(getBitmapFromUri(uris[0]));
-            return null;
+        switch (item.getItemId()) {
+            case R.id.open_file_item:
+                performFileSearch();
+                break;
+            case R.id.saveImage:
+                saveImage();
+                break;
+            case R.id.closeItem:
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
+                break;
         }
 
-        @Override
-        protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(MainActivity.this,
-                    "ProgressDialog",
-                    "Opening image...");
+        return super.onOptionsItemSelected(item);
+    }
+
+    private String getImageRealPath(ContentResolver contentResolver, Uri uri, String whereClause) {
+        String ret = "";
+
+        // Query the uri with condition.
+        Cursor cursor = contentResolver.query(uri, null, whereClause, null, null);
+
+        if (cursor != null) {
+            boolean moveToFirst = cursor.moveToFirst();
+            if (moveToFirst) {
+
+                // Get columns name by uri type.
+                String columnName = MediaStore.Images.Media.DATA;
+
+                if (uri == MediaStore.Images.Media.EXTERNAL_CONTENT_URI) {
+                    columnName = MediaStore.Images.Media.DATA;
+                } else if (uri == MediaStore.Audio.Media.EXTERNAL_CONTENT_URI) {
+                    columnName = MediaStore.Audio.Media.DATA;
+                } else if (uri == MediaStore.Video.Media.EXTERNAL_CONTENT_URI) {
+                    columnName = MediaStore.Video.Media.DATA;
+                }
+
+                // Get column index.
+                int imageColumnIndex = cursor.getColumnIndex(columnName);
+
+                // Get column value which is the uri related file local path.
+                ret = cursor.getString(imageColumnIndex);
+            }
         }
 
-        @Override
-        protected void onPostExecute(Void result) {
-            // execution of result of Long time consuming operation
-            progressDialog.dismiss();
-            mImageView.setImageBitmap(BitmapSource.getBitmapSource());
-        }
+        return ret;
     }
 
     private int calculateInSampleSize(BitmapFactory.Options options,
-                                            int reqWidth, int reqHeight) {
+                                      int reqWidth, int reqHeight) {
         // Реальные размеры изображения
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -288,11 +306,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void listDirectory(String path){
+    private void listDirectory(String path) {
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
         File[] files = directory.listFiles();
-        Log.d("Files", "Size: "+ files.length);
+        Log.d("Files", "Size: " + files.length);
         for (File file : files) {
             Log.d("Files", "FileName:" + file.getName());
         }
@@ -309,10 +327,114 @@ public class MainActivity extends AppCompatActivity {
     private void readImage() {
 
         File file = new File(Environment.
-                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"image001.JPG");
-        if (file.exists()){
+                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "image001.JPG");
+        if (file.exists()) {
             bitmapSource = BitmapFactory.decodeFile(file.getAbsolutePath());
+            BitmapHandle.setBitmapSource(bitmapSource);
+            BitmapHandle.setFileSource(file);
+            BitmapHandle.setBitmapHandled(bitmapSource);
             mImageView.setImageBitmap(bitmapSource);
+        }
+    }
+
+    private void saveImage() {
+        Bitmap editedBitmap = BitmapHandle.getBitmapHandled();
+        File sourceFile = BitmapHandle.getFileSource();
+        String sourceExt = getImageExtension(sourceFile);
+        String fileName = getFileName(sourceFile);
+
+        File newFile = new File(Environment.
+                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + fileName + "_modified." + sourceExt);
+        Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
+
+        if (sourceExt != null) {
+            switch (sourceExt) {
+                case "jpg":
+                case "jpeg":
+                    format = Bitmap.CompressFormat.JPEG;
+                    break;
+                case "png":
+                    format = Bitmap.CompressFormat.PNG;
+                    break;
+                case "webp":
+                    format = Bitmap.CompressFormat.WEBP;
+                    break;
+                default:
+                    format = Bitmap.CompressFormat.PNG;
+            }
+        }
+
+        FileOutputStream fos = null;
+        try {
+            if (newFile.createNewFile()) {
+                fos = new FileOutputStream(newFile);
+                editedBitmap.compress(format, 100, fos);
+                Toast.makeText(this, "File " + newFile.getPath() + " successfully saved!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Could not create file " + newFile.getPath(), Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+    }
+
+    private String getImageExtension(File image) {
+        String imageFileName = image.getName();
+        int index = imageFileName.lastIndexOf(".");
+        if (index > Math.max(imageFileName.lastIndexOf("/"), imageFileName.lastIndexOf("\\"))) {
+            return imageFileName.substring(index + 1);
+        }
+        return null;
+    }
+
+    private String getFileName(File file) {
+        String imageFileName = file.getName();
+        int index = imageFileName.lastIndexOf(".");
+        if (index > Math.max(imageFileName.lastIndexOf("/"), imageFileName.lastIndexOf("\\"))) {
+            return imageFileName.substring(0, index);
+        }
+        return null;
+    }
+
+    private class OpenImageTask extends AsyncTask<Uri, Void, Void> {
+
+
+        ProgressDialog progressDialog;
+
+        @Override
+        protected Void doInBackground(Uri... uris) {
+            Uri selectedUri = uris[0];
+            Bitmap bitmap = getBitmapFromUri(selectedUri);
+            BitmapHandle.setBitmapSource(bitmap);
+            String fileName = getImageRealPath(getContentResolver(), selectedUri, null);
+            BitmapHandle.setFileSource(new File(fileName));
+            BitmapHandle.setBitmapHandled(bitmap);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(MainActivity.this,
+                    "ProgressDialog",
+                    "Opening image...");
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            // execution of result of Long time consuming operation
+            progressDialog.dismiss();
+            mImageView.setImageBitmap(BitmapHandle.getBitmapSource());
         }
     }
 }

@@ -6,11 +6,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
-import education.artem.contrastchangeandroid.BitmapSource;
+import education.artem.contrastchangeandroid.BitmapHandle;
 import education.artem.contrastchangeandroid.Matrix;
 import education.artem.contrastchangeandroid.OperationName;
 import education.artem.contrastchangeandroid.ProcessTask;
@@ -24,23 +22,23 @@ public class ContoursTask extends ProcessTask {
     protected Bitmap doInBackground(OperationName... params) {
         switch (params[0]) {
             case CONTOURS_SOBEL:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, false);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, false);
             case CONTOURS_SOBEL_GRAYSCALE:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, true);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, true);
             case CONTOURS_PREWITT:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
             case CONTOURS_PREWITT_GRAYSCALE:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, true);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, true);
             case CONTOURS_LAPLASIAN_3X3:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Laplacian3x3, Matrix.Prewitt3x3Vertical, 1, 0, false);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, Matrix.Prewitt3x3Vertical, 1, 0, false);
             case CONTOURS_LAPLASIAN_3X3_GRAYSCALE:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
             case CONTOURS_LAPLASIAN_5X5:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, false);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, false);
             case CONTOURS_LAPLASIAN_5X5_GRAYSCALE:
-                return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Laplacian3x3,  1, 0, true);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
         }
-        return ConvolutionFilter(BitmapSource.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
+        return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
     }
 
     public Bitmap ConvolutionFilter(Bitmap sourceBitmap,
@@ -59,7 +57,7 @@ public class ContoursTask extends ProcessTask {
         sourceBitmap.copyPixelsToBuffer(pixelBuffer);
         if (grayscale)
         {
-            float rgb = 0;
+            float rgb;
 
             for (int k = 0; k < pixelBuffer.array().length; k += 4)
             {
@@ -74,18 +72,17 @@ public class ContoursTask extends ProcessTask {
             }
         }
 
-        double blue = 0.0;
-        double green = 0.0;
-        double red = 0.0;
+        double blue;
+        double green;
+        double red;
 
         int filterWidth = filterMatrix[0].length;
-        int filterHeight = filterMatrix.length;
 
         int filterOffset = (filterWidth-1) / 2;
-        int calcOffset = 0;
+        int calcOffset;
 
-        int byteOffset = 0;
-        double progress = 0;
+        int byteOffset;
+        double progress;
         int top = height - filterOffset;
 
         for (int offsetY = filterOffset; offsetY <
@@ -186,23 +183,23 @@ public class ContoursTask extends ProcessTask {
             }
         }
 
-        double blueX = 0.0;
-        double greenX = 0.0;
-        double redX = 0.0;
+        double blueX;
+        double greenX;
+        double redX;
 
-        double blueY = 0.0;
-        double greenY = 0.0;
-        double redY = 0.0;
+        double blueY;
+        double greenY;
+        double redY;
 
-        double blueTotal = 0.0;
-        double greenTotal = 0.0;
-        double redTotal = 0.0;
+        double blueTotal;
+        double greenTotal;
+        double redTotal;
 
         int filterOffset = 1;
-        int calcOffset = 0;
+        int calcOffset;
 
-        int byteOffset = 0;
-        double progress = 0;
+        int byteOffset;
+        double progress;
         int top = sourceBitmap.getHeight() - filterOffset;
         for (int offsetY = filterOffset; offsetY <
                 sourceBitmap.getHeight() - filterOffset; offsetY++)

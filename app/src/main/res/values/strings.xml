@@ -17,6 +17,10 @@
     <string name="processing_image">Processing image</string>
     <string name="close">Close</string>
     <string name="filterParam">Matrix size</string>
+    <string name="edgeDetection">Edge detection method</string>
+    <string name="contrastAlg">Contrasting algorithm</string>
+    <string name="analyze">Analyze</string>
+    <string name="imageHandled">Image successfully handled</string>
     <string-array name="contrast_array">
         <item>Linear</item>
         <item>Histogram equalize</item>

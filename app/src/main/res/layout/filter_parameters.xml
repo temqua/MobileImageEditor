@@ -1,64 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/filter_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/algorithmTextView"
-        android:layout_width="72dp"
-        android:layout_height="18dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="112dp"
-        android:text="@string/algorithm"
-        app:layout_constraintEnd_toStartOf="@+id/filterParameterText"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Spinner
-        android:id="@+id/filter_algorithm_spinner"
-        android:layout_width="138dp"
-        android:layout_height="22dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="44dp"
-        app:layout_constraintEnd_toStartOf="@+id/filter_parameter_spinner"
-        app:layout_constraintTop_toBottomOf="@+id/algorithmTextView" />
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <Button
         android:id="@+id/filtration"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="115dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="4dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="12dp"
         android:background="@color/colorPrimary"
         android:onClick="changeImage"
         android:text="@string/filter"
-        android:textColor="@color/textLight"
-        app:layout_constraintEnd_toStartOf="@+id/algorithmTextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/textLight" />
 
-    <Spinner
-        android:id="@+id/filter_parameter_spinner"
-        android:layout_width="71dp"
-        android:layout_height="23dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="40dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filterParameterText" />
+    <LinearLayout
+        android:layout_width="125dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="4dp"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/filterParameterText"
-        android:layout_width="69dp"
-        android:layout_height="19dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="40dp"
-        android:text="@string/filterParam"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/algorithmTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/algorithm" />
 
-</android.support.constraint.ConstraintLayout>
+        <Spinner
+            android:id="@+id/filter_algorithm_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:popupElevation="4dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/filterParameterText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/filterParam"
+            android:visibility="visible" />
+
+        <Spinner
+            android:id="@+id/filter_parameter_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -51,8 +51,9 @@ public class ProcessTask extends AsyncTask<OperationName, Integer, Bitmap> {
         long timeConsumedMillis = finish - start;
         double timeConsumed = (double)timeConsumedMillis / 60000;
         NumberFormat formatter = new DecimalFormat("#0.000");
-        statusView.setText("Image successfully handled");
+        statusView.setText(R.string.imageHandled);
         execTimeTextView.setText(context.getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
+        BitmapHandle.setBitmapHandled(result);
         mImageView.setImageBitmap(result);
     }
 }
