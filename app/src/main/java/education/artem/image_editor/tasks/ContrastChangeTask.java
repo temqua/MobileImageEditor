@@ -1,4 +1,4 @@
-package education.artem.contrastchangeandroid.tasks;
+package education.artem.image_editor.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,13 +6,14 @@ import android.graphics.Color;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 
-import education.artem.contrastchangeandroid.BitmapHandle;
-import education.artem.contrastchangeandroid.Histogram;
-import education.artem.contrastchangeandroid.OperationName;
-import education.artem.contrastchangeandroid.ProcessTask;
+import education.artem.image_editor.BitmapHandle;
+import education.artem.image_editor.Histogram;
+import education.artem.image_editor.OperationName;
+import education.artem.image_editor.ProcessTask;
 
 public class ContrastChangeTask extends ProcessTask {
 
@@ -33,7 +34,8 @@ public class ContrastChangeTask extends ProcessTask {
                     return adjustContrast(BitmapHandle.getBitmapSource(), 0.5);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            createInformationAlert(e.getMessage());
+            Toast.makeText(this.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return null;
     }
@@ -131,14 +133,14 @@ public class ContrastChangeTask extends ProcessTask {
                     double blue = (((double)indexB/255 - 0.5) * threshold + 0.5) * 255;
 
                     indexR = (int) red;
-                    indexR = indexR > 255 ? 255 : indexR;
-                    indexR = indexR < 0 ? 0 : indexR;
+                    indexR = Math.min(indexR, 255);
+                    indexR = Math.max(indexR, 0);
                     indexG = (int) green;
-                    indexG = indexG > 255 ? 255 : indexG;
-                    indexG = indexG < 0 ? 0 : indexG;
+                    indexG = Math.min(indexG, 255);
+                    indexG = Math.max(indexG, 0);
                     indexB = (int) blue;
-                    indexB = indexB > 255 ? 255 : indexB;
-                    indexB = indexB < 0 ? 0 : indexB;
+                    indexB = Math.min(indexB, 255);
+                    indexB = Math.max(indexB, 0);
                     newImage.setPixel(i, j, Color.rgb(indexR, indexG, indexB));
                 }
             }

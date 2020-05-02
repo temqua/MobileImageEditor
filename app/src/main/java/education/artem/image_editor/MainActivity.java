@@ -1,9 +1,8 @@
-package education.artem.contrastchangeandroid;
+package education.artem.image_editor;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,7 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -38,13 +37,13 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import education.artem.contrastchangeandroid.fragments.ContourFragment;
-import education.artem.contrastchangeandroid.fragments.ContrastFragment;
-import education.artem.contrastchangeandroid.fragments.FilterFragment;
-import education.artem.contrastchangeandroid.fragments.OpenImageDialogFragment;
-import education.artem.contrastchangeandroid.tasks.ContoursTask;
-import education.artem.contrastchangeandroid.tasks.ContrastChangeTask;
-import education.artem.contrastchangeandroid.tasks.MedianFilterTask;
+import education.artem.image_editor.fragments.ContourFragment;
+import education.artem.image_editor.fragments.ContrastFragment;
+import education.artem.image_editor.fragments.FilterFragment;
+import education.artem.image_editor.fragments.OpenImageDialogFragment;
+import education.artem.image_editor.tasks.ContoursTask;
+import education.artem.image_editor.tasks.ContrastChangeTask;
+import education.artem.image_editor.tasks.MedianFilterTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+    private final String LOG_TAG = "ArtemImageEditor";
+
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
         switch (item.getItemId()) {
@@ -115,7 +117,25 @@ public class MainActivity extends AppCompatActivity {
         bottomNavBar = findViewById(R.id.bottomNavBar);
         bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         loadFragment(new ContrastFragment());
-        readImage();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Bitmap bitmapHandled = BitmapHandle.getBitmapHandled();
+        if (mImageView != null && bitmapHandled != null) {
+            mImageView.setImageBitmap(bitmapHandled);
+        }
+        if (progressBar != null) {
+            int progress = savedInstanceState.getInt("handle_progress");
+            progressBar.setProgress(progress);
+        }
+    }
+
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (progressBar != null) {
+            outState.putInt("handle_progress", progressBar.getProgress());
+        }
     }
 
     public void createInformationAlert(String message) {
@@ -196,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
             Uri uri;
             if (resultData != null) {
                 uri = resultData.getData();
+                dumpImageMetaData(uri);
                 OpenImageTask task = new OpenImageTask();
                 task.execute(uri);
             }
@@ -207,6 +228,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case R.id.lastOperationItem:
+                lastOperation();
+                break;
             case R.id.open_file_item:
                 performFileSearch();
                 break;
@@ -222,36 +246,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String getImageRealPath(ContentResolver contentResolver, Uri uri, String whereClause) {
-        String ret = "";
-
-        // Query the uri with condition.
-        Cursor cursor = contentResolver.query(uri, null, whereClause, null, null);
-
-        if (cursor != null) {
-            boolean moveToFirst = cursor.moveToFirst();
-            if (moveToFirst) {
-
-                // Get columns name by uri type.
-                String columnName = MediaStore.Images.Media.DATA;
-
-                if (uri == MediaStore.Images.Media.EXTERNAL_CONTENT_URI) {
-                    columnName = MediaStore.Images.Media.DATA;
-                } else if (uri == MediaStore.Audio.Media.EXTERNAL_CONTENT_URI) {
-                    columnName = MediaStore.Audio.Media.DATA;
-                } else if (uri == MediaStore.Video.Media.EXTERNAL_CONTENT_URI) {
-                    columnName = MediaStore.Video.Media.DATA;
-                }
-
-                // Get column index.
-                int imageColumnIndex = cursor.getColumnIndex(columnName);
-
-                // Get column value which is the uri related file local path.
-                ret = cursor.getString(imageColumnIndex);
-            }
+    private void lastOperation() {
+        if (mImageView != null) {
+            mImageView.setImageBitmap(BitmapHandle.getBitmapHandled());
         }
-
-        return ret;
     }
 
     private int calculateInSampleSize(BitmapFactory.Options options,
@@ -276,6 +274,28 @@ public class MainActivity extends AppCompatActivity {
         return inSampleSize;
     }
 
+    public void dumpImageMetaData(Uri uri) {
+
+        // The query, since it only applies to a single document, will only return
+        // one row. There's no need to filter, sort, or select fields, since we want
+        // all fields for one document.
+
+        try (Cursor cursor = getContentResolver()
+                .query(uri, null, null, null, null, null)) {
+            // moveToFirst() returns false if the cursor has 0 rows.  Very handy for
+            // "if there's anything to look at, look at it" conditionals.
+            if (cursor != null && cursor.moveToFirst()) {
+
+                // Note it's called "Display Name".  This is
+                // provider-specific, and might not necessarily be the file name.
+                String displayName = cursor.getString(
+                        cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                Log.i(LOG_TAG, "Display Name: " + displayName);
+                BitmapHandle.setFileName(displayName);
+            }
+        }
+    }
+
     private Bitmap getBitmapFromUri(Uri uri) {
         ParcelFileDescriptor parcelFileDescriptor = null;
         try {
@@ -293,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
             parcelFileDescriptor.close();
             return image;
         } catch (Exception e) {
+            createInformationAlert("Ошибка открытия изображения. " + e.getMessage());
             return null;
         } finally {
             try {
@@ -300,7 +321,8 @@ public class MainActivity extends AppCompatActivity {
                     parcelFileDescriptor.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, e.getMessage());
+                createInformationAlert(e.getMessage());
             }
         }
     }
@@ -331,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         if (file.exists()) {
             bitmapSource = BitmapFactory.decodeFile(file.getAbsolutePath());
             BitmapHandle.setBitmapSource(bitmapSource);
-            BitmapHandle.setFileSource(file);
+            BitmapHandle.setFileName(file.getName());
             BitmapHandle.setBitmapHandled(bitmapSource);
             mImageView.setImageBitmap(bitmapSource);
         }
@@ -339,12 +361,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveImage() {
         Bitmap editedBitmap = BitmapHandle.getBitmapHandled();
-        File sourceFile = BitmapHandle.getFileSource();
-        String sourceExt = getImageExtension(sourceFile);
-        String fileName = getFileName(sourceFile);
-
+        String sourceFileName = BitmapHandle.getFileName();
+        String sourceExt = getImageExtension(sourceFileName);
+        String newFileName = getFileName(sourceFileName);
         File newFile = new File(Environment.
-                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + fileName + "_modified." + sourceExt);
+                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + newFileName + "_modified." + sourceExt);
         Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
 
         if (sourceExt != null) {
@@ -352,9 +373,6 @@ public class MainActivity extends AppCompatActivity {
                 case "jpg":
                 case "jpeg":
                     format = Bitmap.CompressFormat.JPEG;
-                    break;
-                case "png":
-                    format = Bitmap.CompressFormat.PNG;
                     break;
                 case "webp":
                     format = Bitmap.CompressFormat.WEBP;
@@ -374,14 +392,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Could not create file " + newFile.getPath(), Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(LOG_TAG, e.getMessage());
+            createInformationAlert("Could not save file. " + e.getMessage());
         } finally {
             if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    createInformationAlert("Could not save file. " + e.getMessage());
+                    Log.e(LOG_TAG, e.getMessage());
                 }
             }
         }
@@ -389,8 +408,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private String getImageExtension(File image) {
-        String imageFileName = image.getName();
+    private String getImageExtension(String imageFileName) {
         int index = imageFileName.lastIndexOf(".");
         if (index > Math.max(imageFileName.lastIndexOf("/"), imageFileName.lastIndexOf("\\"))) {
             return imageFileName.substring(index + 1);
@@ -398,8 +416,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    private String getFileName(File file) {
-        String imageFileName = file.getName();
+    private String getFileName(String imageFileName) {
         int index = imageFileName.lastIndexOf(".");
         if (index > Math.max(imageFileName.lastIndexOf("/"), imageFileName.lastIndexOf("\\"))) {
             return imageFileName.substring(0, index);
@@ -417,8 +434,6 @@ public class MainActivity extends AppCompatActivity {
             Uri selectedUri = uris[0];
             Bitmap bitmap = getBitmapFromUri(selectedUri);
             BitmapHandle.setBitmapSource(bitmap);
-            String fileName = getImageRealPath(getContentResolver(), selectedUri, null);
-            BitmapHandle.setFileSource(new File(fileName));
             BitmapHandle.setBitmapHandled(bitmap);
             return null;
         }

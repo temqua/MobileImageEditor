@@ -1,7 +1,7 @@
-package education.artem.contrastchangeandroid;
+package education.artem.image_editor;
 
-import android.graphics.Color;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 
 
 public class ImageHandle {

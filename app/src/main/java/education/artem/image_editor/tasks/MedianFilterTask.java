@@ -1,4 +1,4 @@
-package education.artem.contrastchangeandroid.tasks;
+package education.artem.image_editor.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import education.artem.contrastchangeandroid.BitmapHandle;
-import education.artem.contrastchangeandroid.Matrix;
-import education.artem.contrastchangeandroid.OperationName;
-import education.artem.contrastchangeandroid.ProcessTask;
+import education.artem.image_editor.BitmapHandle;
+import education.artem.image_editor.Matrix;
+import education.artem.image_editor.OperationName;
+import education.artem.image_editor.ProcessTask;
 
 public class MedianFilterTask extends ProcessTask {
     public MedianFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {

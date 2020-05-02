@@ -1,4 +1,4 @@
-package education.artem.contrastchangeandroid;
+package education.artem.image_editor;
 
 public class Histogram {
     private double[] red;

@@ -1,15 +1,14 @@
-package education.artem.contrastchangeandroid.fragments;
+package education.artem.image_editor.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatDialogFragment;
 
 import java.util.Objects;
 
-import education.artem.contrastchangeandroid.MainActivity;
+import education.artem.image_editor.MainActivity;
 
 public class OpenImageDialogFragment extends AppCompatDialogFragment {
     @NonNull

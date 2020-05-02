@@ -1,4 +1,4 @@
-package education.artem.contrastchangeandroid.fragments;
+package education.artem.image_editor.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,9 +10,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import education.artem.contrastchangeandroid.CurrentOperation;
-import education.artem.contrastchangeandroid.OperationName;
-import education.artem.contrastchangeandroid.R;
+import education.artem.image_editor.CurrentOperation;
+import education.artem.image_editor.OperationName;
+import education.artem.image_editor.R;
 
 
 public class ContrastFragment extends Fragment {

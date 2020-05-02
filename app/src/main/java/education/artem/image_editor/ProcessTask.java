@@ -1,8 +1,9 @@
-package education.artem.contrastchangeandroid;
+package education.artem.image_editor;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -55,5 +56,19 @@ public class ProcessTask extends AsyncTask<OperationName, Integer, Bitmap> {
         execTimeTextView.setText(context.getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
         BitmapHandle.setBitmapHandled(result);
         mImageView.setImageBitmap(result);
+    }
+
+    protected Context getContext() {
+        return context;
+    }
+
+    protected void createInformationAlert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
+        builder.setTitle(this.context.getResources().getString(R.string.info))
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

@@ -1,15 +1,12 @@
-package education.artem.contrastchangeandroid;
+package education.artem.image_editor;
 
 import android.graphics.Bitmap;
-
-import java.io.File;
 
 public class BitmapHandle {
 
     private static final BitmapHandle ourInstance = new BitmapHandle();
     private static Bitmap bitmapHandled;
-    private static File fileSource;
-
+    private static String fileName;
     private static Bitmap bitmapSource;
 
     private BitmapHandle() {
@@ -28,12 +25,12 @@ public class BitmapHandle {
         return bitmapSource;
     }
 
-    public static File getFileSource() {
-        return fileSource;
+    public static String getFileName() {
+        return fileName;
     }
 
-    public static void setFileSource(File fileSource) {
-        BitmapHandle.fileSource = fileSource;
+    public static void setFileName(String fileName) {
+        BitmapHandle.fileName = fileName;
     }
 
     public static Bitmap getBitmapHandled() {
