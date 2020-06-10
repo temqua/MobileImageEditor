@@ -5,62 +5,84 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/filtration"
-        android:layout_width="115dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="12dp"
-        android:background="@color/colorPrimary"
-        android:onClick="changeImage"
-        android:text="@string/filter"
-        android:textColor="@color/textLight" />
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="125dp"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="4dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/algorithmTextView"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:text="@string/algorithm" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/filter_algorithm_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:popupElevation="4dp" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/filtration"
+                android:layout_width="115dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="12dp"
+                android:background="@color/colorPrimary"
+                android:onClick="changeImage"
+                android:text="@string/filter"
+                android:textColor="@color/textLight" />
 
-    <LinearLayout
-        android:layout_width="100dp"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:orientation="vertical">
+            <LinearLayout
+                android:id="@+id/filterParams"
+                android:layout_width="125dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="4dp"
+                android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/filterParameterText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:text="@string/filterParam"
-            android:visibility="visible" />
+                <TextView
+                    android:id="@+id/algorithmTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/algorithm" />
 
-        <Spinner
-            android:id="@+id/filter_parameter_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:visibility="visible" />
+                <Spinner
+                    android:id="@+id/filter_algorithm_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:popupElevation="4dp" />
 
-    </LinearLayout>
+            </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/medianParams"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/filterParameterText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/filterParam"
+                    android:visibility="visible" />
+
+                <Spinner
+                    android:id="@+id/filter_parameter_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/gammaValue"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/gamma"
+                android:inputType="numberDecimal" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 </LinearLayout>

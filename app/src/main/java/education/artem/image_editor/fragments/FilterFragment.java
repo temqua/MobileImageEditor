@@ -7,21 +7,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import education.artem.image_editor.CurrentOperation;
 import education.artem.image_editor.OperationName;
 import education.artem.image_editor.R;
 
 public class FilterFragment extends Fragment {
+
+    private void hideAllComponents(View... views) {
+        for (View view : views) {
+            view.setVisibility(View.INVISIBLE);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.filter_parameters, container, false);
         Spinner algorithmSpinner = v.findViewById(R.id.filter_algorithm_spinner);
         Spinner parameterSpinner = v.findViewById(R.id.filter_parameter_spinner);
-        TextView filterParameterText = v.findViewById(R.id.filterParameterText);
+        View gammaValue = v.findViewById(R.id.gammaValue);
+        LinearLayout medianParams = v.findViewById(R.id.medianParams);
         ArrayAdapter<CharSequence> filterAlgorithm = ArrayAdapter.createFromResource(getActivity(),
                 R.array.filter_algorithm_array, android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter<CharSequence> filterParameter = ArrayAdapter.createFromResource(getActivity(),
@@ -34,40 +42,36 @@ public class FilterFragment extends Fragment {
                 String selected = filterAlgorithm.getItem(position).toString();
                 switch (selected) {
                     case "Median filter":
-                        parameterSpinner.setVisibility(View.VISIBLE);
-                        filterParameterText.setVisibility(View.VISIBLE);
+                        medianParams.setVisibility(View.VISIBLE);
+                        gammaValue.setVisibility(View.INVISIBLE);
                         break;
                     case "Gamma correction":
-                        parameterSpinner.setVisibility(View.INVISIBLE);
-                        filterParameterText.setVisibility(View.INVISIBLE);
+                        medianParams.setVisibility(View.INVISIBLE);
+                        gammaValue.setVisibility(View.VISIBLE);
                         CurrentOperation.setCurrentOperation(OperationName.GAMMA_CORRECTION);
                         break;
                     case "Blur":
-                        parameterSpinner.setVisibility(View.INVISIBLE);
-                        filterParameterText.setVisibility(View.INVISIBLE);
+                        hideAllComponents(medianParams, gammaValue);
                         CurrentOperation.setCurrentOperation(OperationName.BLUR);
                         break;
                     case "Gaussian blur":
-                        parameterSpinner.setVisibility(View.INVISIBLE);
-                        filterParameterText.setVisibility(View.INVISIBLE);
+                        hideAllComponents(medianParams, gammaValue);
                         CurrentOperation.setCurrentOperation(OperationName.GAUSSIAN_BLUR);
                         break;
                     case "Emboss":
-                        parameterSpinner.setVisibility(View.INVISIBLE);
-                        filterParameterText.setVisibility(View.INVISIBLE);
+                        hideAllComponents(medianParams, gammaValue);
                         CurrentOperation.setCurrentOperation(OperationName.EMBOSS);
                         break;
                     case "Identity":
-                        parameterSpinner.setVisibility(View.INVISIBLE);
-                        filterParameterText.setVisibility(View.INVISIBLE);
+                        hideAllComponents(medianParams, gammaValue);
                         CurrentOperation.setCurrentOperation(OperationName.IDENTITY);
                         break;
                     case "Sharpen":
-                        parameterSpinner.setVisibility(View.INVISIBLE);
-                        filterParameterText.setVisibility(View.INVISIBLE);
+                        hideAllComponents(medianParams, gammaValue);
                         CurrentOperation.setCurrentOperation(OperationName.SHARPEN);
                         break;
                     case "Bilateral":
+                        hideAllComponents(medianParams, gammaValue);
                         CurrentOperation.setCurrentOperation(OperationName.BILATERAL);
                         break;
                 }

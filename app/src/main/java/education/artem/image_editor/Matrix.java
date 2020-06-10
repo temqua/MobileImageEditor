@@ -45,7 +45,7 @@ public class Matrix {
             {1, 1, 1},
             {1, 1, 1}
     };
-    public static final double[][] GAUSSIAN_BLUR = new double[][]{
+    public static final double[][] GAUSSIAN_BLUR_5x5 = new double[][]{
             {1, 4, 6, 4, 1},
             {4, 16, 24, 16, 4},
             {6, 24, 36, 24, 6},

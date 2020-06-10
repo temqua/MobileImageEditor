@@ -17,9 +17,11 @@ import education.artem.image_editor.ProcessTask;
 
 public class ContrastChangeTask extends ProcessTask {
 
+    private double threshold;
 
-    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec){
+    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, double threshold) {
         super(currContext, imageView, status, progress, exec);
+        this.threshold = threshold;
     }
 
 
@@ -31,7 +33,7 @@ public class ContrastChangeTask extends ProcessTask {
                 case EQUALIZE_CONTRAST:
                     return equalizeHistogram(BitmapHandle.getBitmapSource());
                 case LINEAR_CONTRAST:
-                    return adjustContrast(BitmapHandle.getBitmapSource(), 0.5);
+                    return adjustContrast(BitmapHandle.getBitmapSource(), threshold);
             }
         } catch (Exception e) {
             createInformationAlert(e.getMessage());
@@ -40,15 +42,13 @@ public class ContrastChangeTask extends ProcessTask {
         return null;
     }
 
-    public Histogram buildImageHistogram(Bitmap image) {
+    private Histogram buildImageHistogram(Bitmap image) {
         int width = image.getWidth();
         int height = image.getHeight();
         int size = 256;
         Histogram hist = new Histogram(size);
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
                     int color = image.getPixel(i - 1, j - 1);
                     int R = Color.red(color);
@@ -65,20 +65,18 @@ public class ContrastChangeTask extends ProcessTask {
         return hist;
     }
 
-    public  Bitmap equalizeHistogram(Bitmap image) {
+    private Bitmap equalizeHistogram(Bitmap image) {
         int width = image.getWidth();
         int height = image.getHeight();
         int size = 256;
         Bitmap newImage = image.copy(image.getConfig(), true);
         Histogram hist = buildImageHistogram(image);
-        for (int i = 0; i < size; i++)
-        {
+        for (int i = 0; i < size; i++) {
             hist.getRed()[i] /= (width * height);
             hist.getGreen()[i] /= (width * height);
             hist.getBlue()[i] /= (width * height);
         }
-        for (int i = 1; i < size; i++)
-        {
+        for (int i = 1; i < size; i++) {
             hist.getRed()[i] = hist.getRed()[i - 1] + hist.getRed()[i];
             hist.getGreen()[i] = hist.getGreen()[i - 1] + hist.getGreen()[i];
             hist.getBlue()[i] = hist.getBlue()[i - 1] + hist.getBlue()[i];
@@ -114,16 +112,13 @@ public class ContrastChangeTask extends ProcessTask {
         return newImage;
     }
 
-    public Bitmap adjustContrast(Bitmap image, double threshold) {
+    private Bitmap adjustContrast(Bitmap image, double threshold) {
         Bitmap newImage = image.copy(image.getConfig(), true);
         int height = image.getHeight();
         int width = image.getWidth();
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
-                    int R = 0;
-                    int G = 0;
-                    int B = 0;
                     int color = image.getPixel(i - 1, j - 1);
                     int indexR = Color.red(color);
                     int indexG = Color.green(color);
@@ -131,7 +126,6 @@ public class ContrastChangeTask extends ProcessTask {
                     double red = (((double)indexR/255 - 0.5) * threshold + 0.5) * 255;
                     double green = (((double)indexG/255 - 0.5) * threshold + 0.5) * 255;
                     double blue = (((double)indexB/255 - 0.5) * threshold + 0.5) * 255;
-
                     indexR = (int) red;
                     indexR = Math.min(indexR, 255);
                     indexR = Math.max(indexR, 0);
@@ -150,7 +144,7 @@ public class ContrastChangeTask extends ProcessTask {
         return newImage;
     }
 
-    public Bitmap linearContrast(Bitmap image, int threshold){
+    private Bitmap linearContrast(Bitmap image, int threshold) {
         ByteBuffer pixelBuffer = ByteBuffer.allocate(image.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(image.getByteCount());
         image.copyPixelsToBuffer(pixelBuffer);
@@ -161,17 +155,16 @@ public class ContrastChangeTask extends ProcessTask {
         double blue;
         double green;
         double red;
-        Integer blueInt;
-        Integer greenInt;
-        Integer redInt;
+        int blueInt;
+        int greenInt;
+        int redInt;
 
-        for (int k = 0; k + 4 < pixelBuffer.array().length; k += 4)
-        {
-            blue = ((((pixelBuffer.array()[k]/255) - 0.5) *
+        for (int k = 0; k + 4 < pixelBuffer.array().length; k += 4) {
+            blue = ((((pixelBuffer.array()[k] / 255) - 0.5) *
                     contrastLevel) + 0.5);
 
 
-            green = ((((pixelBuffer.array()[k + 1]/255) - 0.5) *
+            green = ((((pixelBuffer.array()[k + 1] / 255) - 0.5) *
                     contrastLevel) + 0.5);
 
 
@@ -191,18 +184,19 @@ public class ContrastChangeTask extends ProcessTask {
             { green = 0; }
 
 
-            if (red > 255)
-            { red = 255; }
-            else if (red < 0)
-            { red = 0; }
+            if (red > 255) {
+                red = 255;
+            } else if (red < 0) {
+                red = 0;
+            }
 
 
             blueInt = (int) blue;
             greenInt = (int) green;
             redInt = (int) red;
-            pixelBuffer.array()[k] = blueInt.byteValue();
-            pixelBuffer.array()[k + 1] = greenInt.byteValue();
-            pixelBuffer.array()[k + 2] = redInt.byteValue();
+            pixelBuffer.array()[k] = (byte) blueInt;
+            pixelBuffer.array()[k + 1] = (byte) greenInt;
+            pixelBuffer.array()[k + 2] = (byte) redInt;
         }
 
         newImage.copyPixelsFromBuffer(resultBuffer);

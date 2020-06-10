@@ -54,6 +54,7 @@ public class ProcessTask extends AsyncTask<OperationName, Integer, Bitmap> {
         NumberFormat formatter = new DecimalFormat("#0.000");
         statusView.setText(R.string.imageHandled);
         execTimeTextView.setText(context.getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
+        progressBar.setProgress(0);
         BitmapHandle.setBitmapHandled(result);
         mImageView.setImageBitmap(result);
     }

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import education.artem.image_editor.CurrentOperation;
@@ -21,6 +22,7 @@ public class ContrastFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.contrast_parameters, container, false);
+        LinearLayout contrastParams = v.findViewById(R.id.contrastParams);
         Spinner spinner = v.findViewById(R.id.contrast_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.contrast_array, android.R.layout.simple_spinner_dropdown_item);
@@ -34,9 +36,11 @@ public class ContrastFragment extends Fragment {
                 switch (selected) {
                     case "Linear":
                         CurrentOperation.setCurrentOperation(OperationName.LINEAR_CONTRAST);
+                        contrastParams.setVisibility(View.VISIBLE);
                         break;
                     case "Histogram equalize":
                         CurrentOperation.setCurrentOperation(OperationName.EQUALIZE_CONTRAST);
+                        contrastParams.setVisibility(View.INVISIBLE);
                         break;
                 }
             } // to close the onItemSelected

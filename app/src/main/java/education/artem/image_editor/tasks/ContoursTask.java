@@ -30,23 +30,22 @@ public class ContoursTask extends ProcessTask {
             case CONTOURS_PREWITT_GRAYSCALE:
                 return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, true);
             case CONTOURS_LAPLASIAN_3X3:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, Matrix.Prewitt3x3Vertical, 1, 0, false);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, false);
             case CONTOURS_LAPLASIAN_3X3_GRAYSCALE:
                 return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
             case CONTOURS_LAPLASIAN_5X5:
                 return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, false);
             case CONTOURS_LAPLASIAN_5X5_GRAYSCALE:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
+                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, true);
         }
         return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
     }
 
-    public Bitmap ConvolutionFilter(Bitmap sourceBitmap,
-                                            double[][] filterMatrix,
-                                            double factor,
-                                            int bias,
-                                            boolean grayscale)
-    {
+    private Bitmap ConvolutionFilter(Bitmap sourceBitmap,
+                                     double[][] filterMatrix,
+                                     double factor,
+                                     int bias,
+                                     boolean grayscale) {
 
 
         ByteBuffer pixelBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
@@ -55,8 +54,7 @@ public class ContoursTask extends ProcessTask {
         int width = sourceBitmap.getWidth();
         int stride = sourceBitmap.getRowBytes();
         sourceBitmap.copyPixelsToBuffer(pixelBuffer);
-        if (grayscale)
-        {
+        if (grayscale) {
             float rgb;
 
             for (int k = 0; k < pixelBuffer.array().length; k += 4)
@@ -156,30 +154,27 @@ public class ContoursTask extends ProcessTask {
         return resultBitmap;
     }
 
-    public Bitmap ConvolutionFilter(Bitmap sourceBitmap,
-                                           double[][] xFilterMatrix,
-                                           double[][] yFilterMatrix,
-                                           double factor,
-                                           int bias,
-                                           boolean grayscale)
-    {
+    private Bitmap ConvolutionFilter(Bitmap sourceBitmap,
+                                     double[][] xFilterMatrix,
+                                     double[][] yFilterMatrix,
+                                     double factor,
+                                     int bias,
+                                     boolean grayscale) {
         ByteBuffer pixelBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
         ByteBuffer resultBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
         sourceBitmap.copyPixelsToBuffer(pixelBuffer);
-        if (grayscale)
-        {
+        if (grayscale) {
             float rgb;
 
-            for (int k = 0; k < pixelBuffer.array().length; k += 4)
-            {
+            for (int k = 0; k < pixelBuffer.array().length; k += 4) {
                 rgb = pixelBuffer.array()[k] * 0.11f;
                 rgb += pixelBuffer.array()[k + 1] * 0.59f;
                 rgb += pixelBuffer.array()[k + 2] * 0.3f;
 
-                pixelBuffer.array()[k] = (byte)rgb;
+                pixelBuffer.array()[k] = (byte) rgb;
                 pixelBuffer.array()[k + 1] = pixelBuffer.array()[k];
                 pixelBuffer.array()[k + 2] = pixelBuffer.array()[k];
-                pixelBuffer.array()[k + 3] = (byte)255;
+                pixelBuffer.array()[k + 3] = (byte) 255;
             }
         }
 
@@ -209,8 +204,6 @@ public class ContoursTask extends ProcessTask {
             {
                 blueX = greenX = redX = 0;
                 blueY = greenY = redY = 0;
-
-                blueTotal = greenTotal = redTotal = 0.0;
 
                 byteOffset = offsetY *
                         sourceBitmap.getRowBytes() +

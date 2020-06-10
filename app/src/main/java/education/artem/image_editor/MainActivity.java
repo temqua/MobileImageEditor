@@ -27,8 +27,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     Bitmap bitmapSource;
     ProgressBar progressBar;
     TextView statusView;
+
     BottomNavigationView bottomNavBar;
     private static final int READ_REQUEST_CODE = 1337;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -105,17 +108,21 @@ public class MainActivity extends AppCompatActivity {
         builderSingle.show();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        verifyStoragePermissions(this);
+    public void initComponents() {
         mImageView = findViewById(R.id.imageView);
         execTimeTextView = findViewById(R.id.execTimeTextView);
         progressBar = findViewById(R.id.progressBar);
         statusView = findViewById(R.id.statusView);
         bottomNavBar = findViewById(R.id.bottomNavBar);
         bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        verifyStoragePermissions(this);
+        initComponents();
         loadFragment(new ContrastFragment());
     }
 
@@ -184,10 +191,14 @@ public class MainActivity extends AppCompatActivity {
                 task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
                 break;
             case R.id.contrast_change:
-                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                SeekBar contrastBar = findViewById(R.id.contrastBar);
+                double threshold = contrastBar.getVisibility() == View.VISIBLE ? (double) contrastBar.getProgress() / 100 : 0;
+                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, threshold);
                 break;
             case R.id.filtration:
-                task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                EditText gammaValue = findViewById(R.id.gammaValue);
+                double gamma = gammaValue.getVisibility() == View.VISIBLE ? Double.parseDouble(gammaValue.getText().toString()) : 0;
+                task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, gamma);
                 break;
         }
         if (BitmapHandle.getBitmapSource() != null) {

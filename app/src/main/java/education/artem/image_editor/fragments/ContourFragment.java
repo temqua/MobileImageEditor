@@ -16,8 +16,6 @@ import education.artem.image_editor.R;
 
 public class ContourFragment extends Fragment {
 
-
-
     @NonNull
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,

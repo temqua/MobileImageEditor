@@ -4,38 +4,75 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/contrast_change"
-        android:layout_width="115dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="12dp"
-        android:background="@color/colorPrimary"
-        android:onClick="changeImage"
-        android:text="@string/contrast"
-        android:textColor="@color/textLight" />
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textView3"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:text="@string/contrastAlg" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/contrast_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/contrast_change"
+                android:layout_width="115dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="12dp"
+                android:background="@color/colorPrimary"
+                android:onClick="changeImage"
+                android:text="@string/contrast"
+                android:textColor="@color/textLight" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/contrastAlg" />
+
+                <Spinner
+                    android:id="@+id/contrast_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/contrastParams"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/threshold" />
+
+                <SeekBar
+                    android:id="@+id/contrastBar"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:indeterminate="false"
+                    android:max="100" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </LinearLayout>
