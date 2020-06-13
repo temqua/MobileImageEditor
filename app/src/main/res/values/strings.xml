@@ -23,6 +23,8 @@
     <string name="imageHandled">Image successfully handled</string>
     <string name="lastOperation">Last operation</string>
     <string name="gamma">Gamma</string>
+    <string name="distanceSigmaDialog">Choose distance sigma</string>
+    <string name="intensitySigmaDialog">Choose intensity sigma</string>
     <string name="threshold">Threshold</string>
     <string-array name="contrast_array">
         <item>Linear</item>

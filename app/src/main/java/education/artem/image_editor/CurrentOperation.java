@@ -1,5 +1,8 @@
 package education.artem.image_editor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CurrentOperation {
     private static final CurrentOperation ourInstance = new CurrentOperation();
 
@@ -7,16 +10,26 @@ public class CurrentOperation {
         return ourInstance;
     }
 
+    private static Map<String, String> operationParams;
+    private static OperationName currentOperationName;
+
     private CurrentOperation() {
+        operationParams = new HashMap<>();
     }
 
-    private static OperationName currentOperation;
-
-    public static void setCurrentOperation(OperationName operation){
-        currentOperation = operation;
+    public static OperationName getCurrentOperationName() {
+        return currentOperationName;
     }
 
-    public static OperationName getCurrentOperation(){
-        return currentOperation;
+    public static void setCurrentOperationName(OperationName operation) {
+        currentOperationName = operation;
+    }
+
+    public static Map<String, String> getOperationParams() {
+        return operationParams;
+    }
+
+    public static void setOperationParams(Map<String, String> operationParams) {
+        CurrentOperation.operationParams = operationParams;
     }
 }

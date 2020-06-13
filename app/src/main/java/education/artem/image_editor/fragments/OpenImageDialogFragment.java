@@ -19,8 +19,8 @@ public class OpenImageDialogFragment extends AppCompatDialogFragment {
                 .setMessage("Откройте изображение!")
                 .setPositiveButton("Открыть", (dialog, id) -> {
                     // Закрываем окно
-                    dialog.cancel();
-                    ((MainActivity)Objects.requireNonNull(getActivity())).performFileSearch();
+                    dialog.dismiss();
+                    ((MainActivity) Objects.requireNonNull(getActivity())).performFileSearch();
                 });
         return builder.create();
     }

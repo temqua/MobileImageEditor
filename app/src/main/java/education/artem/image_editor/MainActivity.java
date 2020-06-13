@@ -3,6 +3,7 @@ package education.artem.image_editor;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -27,8 +28,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -39,12 +40,15 @@ import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import education.artem.image_editor.fragments.BilateralPickerFragment;
 import education.artem.image_editor.fragments.ContourFragment;
 import education.artem.image_editor.fragments.ContrastFragment;
 import education.artem.image_editor.fragments.FilterFragment;
 import education.artem.image_editor.fragments.OpenImageDialogFragment;
+import education.artem.image_editor.tasks.BilateralFilterTask;
 import education.artem.image_editor.tasks.ContoursTask;
 import education.artem.image_editor.tasks.ContrastChangeTask;
+import education.artem.image_editor.tasks.GammaFilterTask;
 import education.artem.image_editor.tasks.MedianFilterTask;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
     Bitmap bitmapSource;
     ProgressBar progressBar;
     TextView statusView;
+    double gamma;
+    float distanceSigma;
+    float intensitySigma;
+    AsyncTask<OperationName, Integer, Bitmap> currentTask;
+
 
     BottomNavigationView bottomNavBar;
     private static final int READ_REQUEST_CODE = 1337;
@@ -155,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
         alert.show();
     }
 
-
     private void loadFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, fragment);
@@ -185,32 +193,70 @@ public class MainActivity extends AppCompatActivity {
     public void changeImage(View view) {
 
         AsyncTask<OperationName, Integer, Bitmap> task = null;
+        boolean canExecute = true;
 
-        switch (view.getId()) {
-            case R.id.contours_analyze:
-                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
-                break;
-            case R.id.contrast_change:
-                SeekBar contrastBar = findViewById(R.id.contrastBar);
-                double threshold = contrastBar.getVisibility() == View.VISIBLE ? (double) contrastBar.getProgress() / 100 : 0;
-                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, threshold);
-                break;
-            case R.id.filtration:
-                EditText gammaValue = findViewById(R.id.gammaValue);
-                double gamma = gammaValue.getVisibility() == View.VISIBLE ? Double.parseDouble(gammaValue.getText().toString()) : 0;
-                task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, gamma);
-                break;
-        }
-        if (BitmapHandle.getBitmapSource() != null) {
-            if (task != null) {
-                task.execute(CurrentOperation.getCurrentOperation());
-            }
-        } else {
+        if (BitmapHandle.getBitmapSource() == null) {
             OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
-            myDialogFragment.show(transaction, "dialog");
+            myDialogFragment.show(transaction, "open_image_dialog");
+        } else {
+            if (view.getId() == R.id.contours_analyze) {
+                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+            } else if (view.getId() == R.id.filtration) {
+                switch (CurrentOperation.getCurrentOperationName()) {
+                    case BILATERAL:
+                        task = new BilateralFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                        canExecute = false;
+                        BilateralPickerFragment pickerFragment = new BilateralPickerFragment();
+                        FragmentManager manager = getSupportFragmentManager();
+                        FragmentTransaction transaction = manager.beginTransaction();
+                        pickerFragment.show(transaction, "bilateral_picker");
+                        break;
+                    case GAMMA_CORRECTION:
+                        gamma = 0.1;
+                        task = new GammaFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                        canExecute = false;
+                        createNumberDialog("Gamma", "Choose gamma", new String[]{"0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"}, 0, 9, (dialog, which) -> {
+                            CurrentOperation.getOperationParams().put("gamma", String.valueOf(gamma));
+                            dialog.dismiss();
+                            this.currentTask.execute();
+                        }, (picker, oldVal, newVal) -> {
+                            gamma = newVal;
+                        });
+                        break;
+                    default:
+                        CurrentOperation.getOperationParams().put("gamma", "3");
+                        task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                        break;
+                }
+            } else if (view.getId() == R.id.contrast_change) {
+                SeekBar contrastBar = findViewById(R.id.contrastBar);
+                double threshold = contrastBar.getVisibility() == View.VISIBLE ? (double) contrastBar.getProgress() / 100 : 0;
+                CurrentOperation.getOperationParams().clear();
+                CurrentOperation.getOperationParams().put("threshold", String.valueOf(threshold));
+                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+            }
         }
+        this.currentTask = task;
+        if (task != null && canExecute) {
+            task.execute();
+        }
+//        if (BitmapHandle.getBitmapSource() != null) {
+//            if (task != null) {
+//
+//                task.execute(CurrentOperation.getCurrentOperationName());
+//            }
+//        } else {
+//            OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
+//            FragmentManager manager = getSupportFragmentManager();
+//            FragmentTransaction transaction = manager.beginTransaction();
+//            myDialogFragment.show(transaction, "open_image_dialog");
+//        }
+    }
+
+    public void executeCurrentTask() {
+        currentTask.execute(CurrentOperation.getCurrentOperationName());
     }
 
     @Override
@@ -415,8 +461,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
-
     }
 
     private String getImageExtension(String imageFileName) {
@@ -433,6 +477,26 @@ public class MainActivity extends AppCompatActivity {
             return imageFileName.substring(0, index);
         }
         return null;
+    }
+
+    protected void createNumberDialog(String title, String message, String[] displayedValues, int minValue, int maxValue, DialogInterface.OnClickListener positiveListener, NumberPicker.OnValueChangeListener pickerListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        NumberPicker numberPicker = new NumberPicker(MainActivity.this);
+        numberPicker.setMinValue(minValue);
+        numberPicker.setMaxValue(maxValue);
+        if (displayedValues.length > 0) {
+            numberPicker.setDisplayedValues(displayedValues);
+        }
+        numberPicker.setWrapSelectorWheel(false);
+        numberPicker.setOnValueChangedListener(pickerListener);
+
+        builder.setTitle(title)
+                .setMessage(message)
+                .setNegativeButton("cancel", (dialog, which) -> dialog.cancel())
+                .setPositiveButton("Ok", positiveListener);
+        builder.setView(numberPicker);
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     private class OpenImageTask extends AsyncTask<Uri, Void, Void> {

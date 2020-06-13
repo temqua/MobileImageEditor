@@ -9,19 +9,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import education.artem.image_editor.BitmapHandle;
+import education.artem.image_editor.CurrentOperation;
 import education.artem.image_editor.Histogram;
 import education.artem.image_editor.OperationName;
 import education.artem.image_editor.ProcessTask;
 
 public class ContrastChangeTask extends ProcessTask {
 
-    private double threshold;
-
-    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, double threshold) {
+    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
         super(currContext, imageView, status, progress, exec);
-        this.threshold = threshold;
     }
 
 
@@ -29,6 +28,14 @@ public class ContrastChangeTask extends ProcessTask {
     protected Bitmap doInBackground(OperationName... params) {
         try {
             OperationName currentOperation = params[0];
+            Map<String, String> operationParams = CurrentOperation.getOperationParams();
+            int threshold = 1;
+            if (operationParams.size() > 0) {
+                String thresholdStr = CurrentOperation.getOperationParams().get("threshold");
+                if (thresholdStr != null) {
+                    threshold = Integer.parseInt(thresholdStr);
+                }
+            }
             switch (currentOperation) {
                 case EQUALIZE_CONTRAST:
                     return equalizeHistogram(BitmapHandle.getBitmapSource());

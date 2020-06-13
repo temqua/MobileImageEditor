@@ -20,7 +20,9 @@ public class ContoursTask extends ProcessTask {
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        switch (params[0]) {
+        OperationName operationName = params[0];
+
+        switch (operationName) {
             case CONTOURS_SOBEL:
                 return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, false);
             case CONTOURS_SOBEL_GRAYSCALE:

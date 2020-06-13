@@ -33,28 +33,28 @@ public class ContourFragment extends Fragment {
                 String selected = adapter.getItem(position).toString();
                 switch (selected) {
                     case "Prewitt":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_PREWITT);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_PREWITT);
                         break;
                     case "Prewitt grayscale":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_PREWITT_GRAYSCALE);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_PREWITT_GRAYSCALE);
                         break;
                     case "Sobel":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_SOBEL);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_SOBEL);
                         break;
                     case "Sobel grayscale":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_SOBEL_GRAYSCALE);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_SOBEL_GRAYSCALE);
                         break;
                     case "Laplacian 3x3":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_3X3);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_LAPLASIAN_3X3);
                         break;
                     case "Laplacian 3x3 grayscale":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_3X3_GRAYSCALE);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_LAPLASIAN_3X3_GRAYSCALE);
                         break;
                     case "Laplacian 5x5":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_5X5);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_LAPLASIAN_5X5);
                         break;
                     case "Laplacian 5x5 grayscale":
-                        CurrentOperation.setCurrentOperation(OperationName.CONTOURS_LAPLASIAN_5X5_GRAYSCALE);
+                        CurrentOperation.setCurrentOperationName(OperationName.CONTOURS_LAPLASIAN_5X5_GRAYSCALE);
                         break;
                 }
             } // to close the onItemSelected

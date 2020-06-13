@@ -3,11 +3,7 @@ package education.artem.image_editor;
 public enum OperationName {
     LINEAR_CONTRAST,
     EQUALIZE_CONTRAST,
-    FILTER_3x3,
-    FILTER_5x5,
-    FILTER_7x7,
-    FILTER_9x9,
-    FILTER_11x11,
+    MEDIAN_FILTER,
     CONTOURS_PREWITT,
     CONTOURS_PREWITT_GRAYSCALE,
     CONTOURS_SOBEL,

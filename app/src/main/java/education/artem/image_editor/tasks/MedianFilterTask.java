@@ -11,39 +11,31 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import education.artem.image_editor.BitmapHandle;
+import education.artem.image_editor.CurrentOperation;
 import education.artem.image_editor.Matrix;
 import education.artem.image_editor.OperationName;
 import education.artem.image_editor.ProcessTask;
-import education.artem.image_editor.filters.BilateralFilter;
 
 public class MedianFilterTask extends ProcessTask {
 
     final int BITS = 256;
-    private double gamma;
 
 
-    public MedianFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, double gamma) {
+    public MedianFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
         super(currContext, imageView, status, progress, exec);
-        this.gamma = gamma;
     }
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        switch (params[0]) {
-            case FILTER_3x3:
-                return medianFilter(BitmapHandle.getBitmapSource(), 3, 0, false);
-            case FILTER_5x5:
-                return medianFilter(BitmapHandle.getBitmapSource(), 5, 0, false);
-            case FILTER_7x7:
-                return medianFilter(BitmapHandle.getBitmapSource(), 7, 0, false);
-            case FILTER_9x9:
-                return medianFilter(BitmapHandle.getBitmapSource(), 9, 0, false);
-            case FILTER_11x11:
-                return medianFilter(BitmapHandle.getBitmapSource(), 11, 0, false);
-            case GAMMA_CORRECTION:
-                return gammaCorrection(BitmapHandle.getBitmapSource(), gamma);
+        OperationName operationName = params[0];
+        switch (operationName) {
+            case MEDIAN_FILTER:
+                Map<String, String> filterParams = CurrentOperation.getOperationParams();
+                int matrixSize = filterParams.size() > 0 ? Integer.parseInt(filterParams.get("matrixSize")) : 3;
+                return medianFilter(BitmapHandle.getBitmapSource(), matrixSize, 0, false);
             case BLUR:
                 return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.BLUR, 9, 0);
             case GAUSSIAN_BLUR:
@@ -54,8 +46,6 @@ public class MedianFilterTask extends ProcessTask {
                 return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.EMBOSS, 1, 0);
             case IDENTITY:
                 return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.IDENTITY, 1, 0);
-            case BILATERAL:
-                return BilateralFilter(BitmapHandle.getBitmapSource(), 6, 3);
         }
         return medianFilter(BitmapHandle.getBitmapSource(), 3, 0, false);
     }
@@ -222,127 +212,5 @@ public class MedianFilterTask extends ProcessTask {
         } else {
             return pixel;
         }
-    }
-
-    public Bitmap gammaCorrection(Bitmap image, double gamma) {
-        Bitmap newImage = image.copy(image.getConfig(), true);
-        int height = image.getHeight();
-        int width = image.getWidth();
-        double c = 1d;
-
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
-                    int color = image.getPixel(i - 1, j - 1);
-                    int indexR = Color.red(color);
-                    int indexG = Color.green(color);
-                    int indexB = Color.blue(color);
-                    double red = c * Math.pow(indexR / 255, gamma) * 255;
-                    double green = c * Math.pow(indexG / 255, gamma) * 255;
-                    double blue = c * Math.pow(indexB / 255, gamma) * 255;
-                    indexR = (int) red;
-                    indexR = Math.min(indexR, 255);
-                    indexR = Math.max(indexR, 0);
-                    indexG = (int) green;
-                    indexG = Math.min(indexG, 255);
-                    indexG = Math.max(indexG, 0);
-                    indexB = (int) blue;
-                    indexB = Math.min(indexB, 255);
-                    indexB = Math.max(indexB, 0);
-                    newImage.setPixel(i, j, Color.rgb(indexR, indexG, indexB));
-                }
-            }
-            double progress = (double) i / width * 100;
-            publishProgress((int) progress);
-        }
-        return newImage;
-    }
-
-    private Bitmap GammaCorrection(Bitmap sourceBitmap, double gamma) {
-        int height = sourceBitmap.getHeight();
-        int width = sourceBitmap.getWidth();
-        double c = 1d;
-        ByteBuffer pixelBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
-        ByteBuffer resultBuffer = ByteBuffer.allocate(sourceBitmap.getByteCount());
-        int stride = sourceBitmap.getRowBytes();
-        sourceBitmap.copyPixelsToBuffer(pixelBuffer);
-        Bitmap resultBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
-
-        int current;
-        final int cChannels = 3;
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                current = y * stride + x * 4;
-                for (int i = 0; i < cChannels; i++)
-                {
-                    double range = (double)pixelBuffer.array()[current + i] / 255;
-                    double correction = c * Math.pow(range, gamma);
-                    resultBuffer.array()[current + i] = (byte)(correction * 255);
-                }
-                resultBuffer.array()[current + 3] = (byte) 255;
-            }
-            double progress = (double) y / height * 100;
-
-            publishProgress((int) progress);
-        }
-        resultBitmap.copyPixelsFromBuffer(resultBuffer);
-        return resultBitmap;
-    }
-
-    public Bitmap BilateralFilter(Bitmap sourceBitmap, float distanceSigma, float intensitySigma) {
-        BilateralFilter bilateralFilter = new BilateralFilter(distanceSigma, intensitySigma);
-        int kernelSize = bilateralFilter.getKernelSize();
-        float[][] gaussianKernelMatrix = bilateralFilter.getGaussianKernelMatrix();
-        float[] intensityVector = bilateralFilter.getIntensityVector();
-        int imageWidth = sourceBitmap.getWidth();
-        int imageHeight = sourceBitmap.getHeight();
-        Bitmap resultBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
-        for (int x = 0; x < imageWidth; x++) {
-            for (int y = 0; y < imageHeight; y++) {
-                float numeratorSumR = 0;
-                float numeratorSumG = 0;
-                float numeratorSumB = 0;
-                float denominatorSum = 0;
-
-                // It needs to calculate number of pixel that fits to kernel.
-                int halfKernelSize = (int) Math.floor(kernelSize / 2);
-                int kernelCenterIntensity = sourceBitmap.getPixel(x, y);
-
-                // Go around the kernel if it is allowed by border of image.
-                for (int i = x - halfKernelSize; i < x + halfKernelSize; i++) {
-                    for (int j = y - halfKernelSize; j < y + halfKernelSize; j++) {
-                        if (i >= 0 && j >= 0 && i < imageWidth && j < imageHeight) {
-                            float kernelPositionWeight;
-                            int kernelPositionIntensity = sourceBitmap.getPixel(i, j);
-
-                            // Translate kernel image coordinates into local gaussianKernelMatrix coordinates and
-                            // calculate weight of current kernel position.
-                            kernelPositionWeight = gaussianKernelMatrix[x - i + halfKernelSize][y - j + halfKernelSize] *
-                                    intensityVector[bilateralFilter.getIntensityDifference(kernelCenterIntensity, kernelPositionIntensity)];
-
-                            // Process each color component separately.
-                            // It is necessary to make filter work with color images.
-                            numeratorSumR += kernelPositionWeight * ((kernelPositionIntensity >> 16) & 0xFF);
-                            numeratorSumG += kernelPositionWeight * ((kernelPositionIntensity >> 8) & 0xFF);
-                            numeratorSumB += kernelPositionWeight * (kernelPositionIntensity & 0xFF);
-                            denominatorSum += kernelPositionWeight;
-                        }
-                    }
-                }
-
-                // Normalization by division and combination bit color value from separate components
-                // into compound 32-bits value, delete an alpha channel. Then set new value.
-                int color = 0xFF000000 | (((int) (numeratorSumR / denominatorSum) & 0xFF) << 16) |
-                        (((int) (numeratorSumG / denominatorSum) & 0xFF) << 8) |
-                        ((int) (numeratorSumB / denominatorSum) & 0xFF);
-
-                resultBitmap.setPixel(x, y, color);
-            }
-            double progress = (double) x / imageWidth * 100;
-            publishProgress((int) progress);
-        }
-        return resultBitmap;
     }
 }

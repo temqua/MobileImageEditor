@@ -8,31 +8,37 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class ProcessTask extends AsyncTask<OperationName, Integer, Bitmap> {
 
     private long start;
-    private ImageView mImageView;
-    private TextView statusView;
-    private ProgressBar progressBar;
-    private TextView execTimeTextView;
-    private Context context;
+    private WeakReference<ImageView> mImageView;
+    private WeakReference<TextView> statusViewRef;
+    private WeakReference<ProgressBar> progressBarRef;
+    private WeakReference<TextView> execTimeTextViewRef;
+    private WeakReference<Context> contextRef;
 
-    public ProcessTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec){
-        this.mImageView = imageView;
-        this.statusView = status;
-        this.progressBar = progress;
-        this.execTimeTextView = exec;
-        this.context = currContext;
+    public ProcessTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
+        this.mImageView = new WeakReference<>(imageView);
+        this.statusViewRef = new WeakReference<>(status);
+        this.progressBarRef = new WeakReference<>(progress);
+        this.execTimeTextViewRef = new WeakReference<>(exec);
+        this.contextRef = new WeakReference<>(currContext);
+    }
+
+    public Context getContext() {
+        return contextRef.get();
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
         this.start = System.currentTimeMillis();
-        statusView.setText(context.getResources().getString(R.string.processing_image));
+
+        statusViewRef.get().setText(contextRef.get().getResources().getString(R.string.processing_image));
     }
 
     @Override
@@ -42,7 +48,7 @@ public class ProcessTask extends AsyncTask<OperationName, Integer, Bitmap> {
 
     @Override
     protected void onProgressUpdate(Integer... values){
-        progressBar.setProgress(values[0]);
+        progressBarRef.get().setProgress(values[0]);
     }
 
     @Override
@@ -50,25 +56,21 @@ public class ProcessTask extends AsyncTask<OperationName, Integer, Bitmap> {
         super.onPostExecute(result);
         long finish = System.currentTimeMillis();
         long timeConsumedMillis = finish - start;
-        double timeConsumed = (double)timeConsumedMillis / 60000;
+        double timeConsumed = (double) timeConsumedMillis / 60000;
         NumberFormat formatter = new DecimalFormat("#0.000");
-        statusView.setText(R.string.imageHandled);
-        execTimeTextView.setText(context.getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
-        progressBar.setProgress(0);
+        statusViewRef.get().setText(R.string.imageHandled);
+        execTimeTextViewRef.get().setText(contextRef.get().getResources().getString(R.string.execution_time) + ": " + formatter.format(timeConsumed) + " мин");
+        progressBarRef.get().setProgress(0);
         BitmapHandle.setBitmapHandled(result);
-        mImageView.setImageBitmap(result);
+        mImageView.get().setImageBitmap(result);
     }
 
-    protected Context getContext() {
-        return context;
-    }
 
     protected void createInformationAlert(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-        builder.setTitle(this.context.getResources().getString(R.string.info))
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.contextRef.get());
+        builder.setTitle(this.contextRef.get().getResources().getString(R.string.info))
                 .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
+                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
         AlertDialog alert = builder.create();
         alert.show();
     }

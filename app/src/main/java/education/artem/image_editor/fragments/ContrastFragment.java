@@ -35,11 +35,11 @@ public class ContrastFragment extends Fragment {
                 String selected = adapter.getItem(position).toString();
                 switch (selected) {
                     case "Linear":
-                        CurrentOperation.setCurrentOperation(OperationName.LINEAR_CONTRAST);
+                        CurrentOperation.setCurrentOperationName(OperationName.LINEAR_CONTRAST);
                         contrastParams.setVisibility(View.VISIBLE);
                         break;
                     case "Histogram equalize":
-                        CurrentOperation.setCurrentOperation(OperationName.EQUALIZE_CONTRAST);
+                        CurrentOperation.setCurrentOperationName(OperationName.EQUALIZE_CONTRAST);
                         contrastParams.setVisibility(View.INVISIBLE);
                         break;
                 }
