@@ -81,6 +81,9 @@ public class ContrastChangeTask extends ProcessTask {
         int size = 256;
         Bitmap newImage = image.copy(image.getConfig(), true);
         Histogram hist = buildImageHistogram(image);
+        if (isCancelled()) {
+            return null;
+        }
         for (int i = 0; i < size; i++) {
             hist.getRed()[i] /= (width * height);
             hist.getGreen()[i] /= (width * height);
@@ -92,18 +95,19 @@ public class ContrastChangeTask extends ProcessTask {
             hist.getBlue()[i] = hist.getBlue()[i - 1] + hist.getBlue()[i];
         }
 
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (isCancelled()) {
+                    return null;
+                }
                 if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
                     int color = image.getPixel(i - 1, j - 1);
                     int indexR = Color.red(color);
                     int indexG = Color.green(color);
                     int indexB = Color.blue(color);
-                    int red = (int)(hist.getRed()[indexR] * size);
-                    int green = (int)(hist.getGreen()[indexG] * size);
-                    int blue = (int)(hist.getBlue()[indexB] * size);
+                    int red = (int) (hist.getRed()[indexR] * size);
+                    int green = (int) (hist.getGreen()[indexG] * size);
+                    int blue = (int) (hist.getBlue()[indexB] * size);
                     newImage.setPixel(i, j, Color.rgb(red, green, blue));
                 }
                 else {
@@ -128,14 +132,17 @@ public class ContrastChangeTask extends ProcessTask {
         int width = image.getWidth();
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
+                if (isCancelled()) {
+                    return null;
+                }
                 if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
                     int color = image.getPixel(i - 1, j - 1);
                     int indexR = Color.red(color);
                     int indexG = Color.green(color);
                     int indexB = Color.blue(color);
-                    double red = (((double)indexR/255 - 0.5) * threshold + 0.5) * 255;
-                    double green = (((double)indexG/255 - 0.5) * threshold + 0.5) * 255;
-                    double blue = (((double)indexB/255 - 0.5) * threshold + 0.5) * 255;
+                    double red = (((double) indexR / 255 - 0.5) * threshold + 0.5) * 255;
+                    double green = (((double) indexG / 255 - 0.5) * threshold + 0.5) * 255;
+                    double blue = (((double) indexB / 255 - 0.5) * threshold + 0.5) * 255;
                     indexR = (int) red;
                     indexR = Math.min(indexR, 255);
                     indexR = Math.max(indexR, 0);

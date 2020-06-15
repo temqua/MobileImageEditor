@@ -9,14 +9,16 @@ import android.support.v7.app.AppCompatDialogFragment;
 import java.util.Objects;
 
 import education.artem.image_editor.MainActivity;
+import education.artem.image_editor.R;
 
 public class OpenImageDialogFragment extends AppCompatDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Ошибка!")
+        builder.setTitle(R.string.error)
                 .setMessage("Откройте изображение!")
+                .setIcon(R.drawable.ic_baseline_error_24)
                 .setPositiveButton("Открыть", (dialog, id) -> {
                     // Закрываем окно
                     dialog.dismiss();

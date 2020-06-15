@@ -249,14 +249,15 @@ public class MainActivity extends AppCompatActivity {
                 CurrentOperation.getOperationParams().put("threshold", String.valueOf(threshold));
                 task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
             }
+            if (task != null) {
+                this.currentTask = task;
+            }
+            if (canExecute) {
+                executeCurrentTask();
+            }
         }
 
-        if (task != null) {
-            this.currentTask = task;
-        }
-        if (canExecute) {
-            executeCurrentTask();
-        }
+
     }
 
     public void executeCurrentTask() {
@@ -429,54 +430,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveImage() {
-        Bitmap editedBitmap = BitmapHandle.getBitmapHandled();
-        String sourceFileName = BitmapHandle.getFileName();
-        String sourceExt = getImageExtension(sourceFileName);
-        String newFileName = getFileName(sourceFileName);
-        File newFile = new File(Environment.
-                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + newFileName + "_modified." + sourceExt);
-        Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
+        if (BitmapHandle.getBitmapSource() == null) {
+            OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            myDialogFragment.show(transaction, "open_image_dialog");
+        } else {
+            Bitmap editedBitmap = BitmapHandle.getBitmapHandled();
+            String sourceFileName = BitmapHandle.getFileName();
+            String sourceExt = getImageExtension(sourceFileName);
+            String newFileName = getFileName(sourceFileName);
+            File newFile = new File(Environment.
+                    getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + newFileName + "_modified." + sourceExt);
+            Bitmap.CompressFormat format = Bitmap.CompressFormat.PNG;
 
-        if (sourceExt != null) {
-            switch (sourceExt) {
-                case "jpg":
-                case "jpeg":
-                    format = Bitmap.CompressFormat.JPEG;
-                    break;
-                case "webp":
-                    format = Bitmap.CompressFormat.WEBP;
-                    break;
-                default:
-                    format = Bitmap.CompressFormat.PNG;
+            if (sourceExt != null) {
+                switch (sourceExt) {
+                    case "jpg":
+                    case "jpeg":
+                        format = Bitmap.CompressFormat.JPEG;
+                        break;
+                    case "webp":
+                        format = Bitmap.CompressFormat.WEBP;
+                        break;
+                    default:
+                        format = Bitmap.CompressFormat.PNG;
+                }
             }
-        }
 
-        FileOutputStream fos = null;
-        try {
-            if (newFile.createNewFile()) {
-                fos = new FileOutputStream(newFile);
-                editedBitmap.compress(format, 100, fos);
-                Toast.makeText(this, "File " + newFile.getPath() + " successfully saved!", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Could not create file " + newFile.getPath(), Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                Log.e(LOG_TAG, e.getMessage());
-            }
-            createInformationAlert("Could not save file. " + e.getMessage());
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    createInformationAlert("Could not save file. " + e.getMessage());
-                    if (e.getMessage() != null) {
-                        Log.e(LOG_TAG, e.getMessage());
+            FileOutputStream fos = null;
+            try {
+                if (newFile.createNewFile()) {
+                    fos = new FileOutputStream(newFile);
+                    editedBitmap.compress(format, 100, fos);
+                    Toast.makeText(this, "File " + newFile.getPath() + " successfully saved!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "Could not create file " + newFile.getPath(), Toast.LENGTH_LONG).show();
+                }
+            } catch (Exception e) {
+                if (e.getMessage() != null) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+                createInformationAlert("Could not save file. " + e.getMessage());
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        createInformationAlert("Could not save file. " + e.getMessage());
+                        if (e.getMessage() != null) {
+                            Log.e(LOG_TAG, e.getMessage());
+                        }
                     }
                 }
             }
         }
+
     }
 
     private String getImageExtension(String imageFileName) {

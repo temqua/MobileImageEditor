@@ -75,14 +75,6 @@
 
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/gammaValue"
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="@string/gamma"
-                android:inputType="numberDecimal" />
-
         </LinearLayout>
     </HorizontalScrollView>
 </LinearLayout>
