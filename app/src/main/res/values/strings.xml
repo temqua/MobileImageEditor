@@ -5,7 +5,9 @@
     <string name="linear_contrast">Linear</string>
     <string name="contrast">Contrast</string>
     <string name="filter">Filter</string>
+    <string name="error">Error</string>
     <string name="contours">Contours</string>
+    <string name="cancel_operation">Cancel current operation</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -20,6 +22,7 @@
     <string name="edgeDetection">Edge detection method</string>
     <string name="contrastAlg">Contrasting algorithm</string>
     <string name="analyze">Analyze</string>
+    <string name="handle_cancelled">Image handle successfully cancelled</string>
     <string name="imageHandled">Image successfully handled</string>
     <string name="lastOperation">Last operation</string>
     <string name="gamma">Gamma</string>

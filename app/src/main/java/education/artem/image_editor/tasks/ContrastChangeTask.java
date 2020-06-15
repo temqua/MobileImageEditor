@@ -3,10 +3,10 @@ package education.artem.image_editor.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -19,21 +19,21 @@ import education.artem.image_editor.ProcessTask;
 
 public class ContrastChangeTask extends ProcessTask {
 
-    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
-        super(currContext, imageView, status, progress, exec);
-    }
 
+    public ContrastChangeTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, TextView cancelView) {
+        super(currContext, imageView, status, progress, exec, cancelView);
+    }
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
         try {
             OperationName currentOperation = params[0];
             Map<String, String> operationParams = CurrentOperation.getOperationParams();
-            int threshold = 1;
+            double threshold = 1;
             if (operationParams.size() > 0) {
                 String thresholdStr = CurrentOperation.getOperationParams().get("threshold");
                 if (thresholdStr != null) {
-                    threshold = Integer.parseInt(thresholdStr);
+                    threshold = Double.parseDouble(thresholdStr);
                 }
             }
             switch (currentOperation) {
@@ -43,8 +43,11 @@ public class ContrastChangeTask extends ProcessTask {
                     return adjustContrast(BitmapHandle.getBitmapSource(), threshold);
             }
         } catch (Exception e) {
-            createInformationAlert(e.getMessage());
-            Toast.makeText(this.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            this.e = e;
+            if (e.getMessage() != null) {
+                Log.e(getClass().getName(), e.getMessage());
+            }
+            cancel(true);
         }
         return null;
     }
@@ -209,5 +212,6 @@ public class ContrastChangeTask extends ProcessTask {
         newImage.copyPixelsFromBuffer(resultBuffer);
         return newImage;
     }
+
 
 }

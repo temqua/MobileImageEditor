@@ -2,6 +2,7 @@ package education.artem.image_editor.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -14,33 +15,45 @@ import education.artem.image_editor.OperationName;
 import education.artem.image_editor.ProcessTask;
 
 public class ContoursTask extends ProcessTask {
-    public ContoursTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
-        super(currContext, imageView, status, progress, exec);
+
+
+    public ContoursTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, TextView cancelView) {
+        super(currContext, imageView, status, progress, exec, cancelView);
     }
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        OperationName operationName = params[0];
 
-        switch (operationName) {
-            case CONTOURS_SOBEL:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, false);
-            case CONTOURS_SOBEL_GRAYSCALE:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, true);
-            case CONTOURS_PREWITT:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
-            case CONTOURS_PREWITT_GRAYSCALE:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, true);
-            case CONTOURS_LAPLASIAN_3X3:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, false);
-            case CONTOURS_LAPLASIAN_3X3_GRAYSCALE:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
-            case CONTOURS_LAPLASIAN_5X5:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, false);
-            case CONTOURS_LAPLASIAN_5X5_GRAYSCALE:
-                return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, true);
+        try {
+            OperationName operationName = params[0];
+
+            switch (operationName) {
+                case CONTOURS_SOBEL:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, false);
+                case CONTOURS_SOBEL_GRAYSCALE:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Sobel3x3Horizontal, Matrix.Sobel3x3Vertical, 1, 0, true);
+                case CONTOURS_PREWITT:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
+                case CONTOURS_PREWITT_GRAYSCALE:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, true);
+                case CONTOURS_LAPLASIAN_3X3:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, false);
+                case CONTOURS_LAPLASIAN_3X3_GRAYSCALE:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian3x3, 1, 0, true);
+                case CONTOURS_LAPLASIAN_5X5:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, false);
+                case CONTOURS_LAPLASIAN_5X5_GRAYSCALE:
+                    return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Laplacian5x5, 1, 0, true);
+            }
+            return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
+        } catch (Exception e) {
+            this.e = e;
+            if (e.getMessage() != null) {
+                Log.e(getClass().getName(), e.getMessage());
+            }
+            cancel(true);
         }
-        return ConvolutionFilter(BitmapHandle.getBitmapSource(), Matrix.Prewitt3x3Horizontal, Matrix.Prewitt3x3Vertical, 1, 0, false);
+        return null;
     }
 
     private Bitmap ConvolutionFilter(Bitmap sourceBitmap,
@@ -89,8 +102,11 @@ public class ContoursTask extends ProcessTask {
                 height - filterOffset; offsetY++)
         {
             for (int offsetX = filterOffset; offsetX <
-                    width - filterOffset; offsetX++)
-            {
+                    width - filterOffset; offsetX++) {
+                if (isCancelled()) {
+                    return null;
+                }
+
                 blue = 0;
                 green = 0;
                 red = 0;

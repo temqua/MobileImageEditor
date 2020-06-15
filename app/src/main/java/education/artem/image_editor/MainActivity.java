@@ -58,12 +58,9 @@ public class MainActivity extends AppCompatActivity {
     Bitmap bitmapSource;
     ProgressBar progressBar;
     TextView statusView;
+    TextView cancelTaskTextView;
     double gamma;
-    float distanceSigma;
-    float intensitySigma;
     AsyncTask<OperationName, Integer, Bitmap> currentTask;
-
-
     BottomNavigationView bottomNavBar;
     private static final int READ_REQUEST_CODE = 1337;
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -122,8 +119,10 @@ public class MainActivity extends AppCompatActivity {
         execTimeTextView = findViewById(R.id.execTimeTextView);
         progressBar = findViewById(R.id.progressBar);
         statusView = findViewById(R.id.statusView);
+        cancelTaskTextView = findViewById(R.id.cancelTaskView);
         bottomNavBar = findViewById(R.id.bottomNavBar);
         bottomNavBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        cancelTaskTextView.setOnClickListener(view -> cancelCurrentTask());
     }
 
     @Override
@@ -154,12 +153,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void createErrorAlert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(getResources().getString(R.string.info))
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel())
+                .setIcon(R.drawable.ic_baseline_error_24);
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     public void createInformationAlert(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(getResources().getString(R.string.info))
                 .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
+                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel())
+                .setIcon(R.drawable.ic_baseline_info_24);
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -202,11 +214,11 @@ public class MainActivity extends AppCompatActivity {
             myDialogFragment.show(transaction, "open_image_dialog");
         } else {
             if (view.getId() == R.id.contours_analyze) {
-                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                task = new ContoursTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
             } else if (view.getId() == R.id.filtration) {
                 switch (CurrentOperation.getCurrentOperationName()) {
                     case BILATERAL:
-                        task = new BilateralFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                        task = new BilateralFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
                         canExecute = false;
                         BilateralPickerFragment pickerFragment = new BilateralPickerFragment();
                         FragmentManager manager = getSupportFragmentManager();
@@ -215,19 +227,19 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case GAMMA_CORRECTION:
                         gamma = 0.1;
-                        task = new GammaFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                        task = new GammaFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
                         canExecute = false;
                         createNumberDialog("Gamma", "Choose gamma", new String[]{"0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"}, 0, 9, (dialog, which) -> {
+                            CurrentOperation.getOperationParams().clear();
                             CurrentOperation.getOperationParams().put("gamma", String.valueOf(gamma));
                             dialog.dismiss();
-                            this.currentTask.execute();
-                        }, (picker, oldVal, newVal) -> {
-                            gamma = newVal;
-                        });
+                            executeCurrentTask();
+                        }, (picker, oldVal, newVal) -> gamma = newVal);
                         break;
                     default:
+                        CurrentOperation.getOperationParams().clear();
                         CurrentOperation.getOperationParams().put("gamma", "3");
-                        task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                        task = new MedianFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
                         break;
                 }
             } else if (view.getId() == R.id.contrast_change) {
@@ -235,28 +247,24 @@ public class MainActivity extends AppCompatActivity {
                 double threshold = contrastBar.getVisibility() == View.VISIBLE ? (double) contrastBar.getProgress() / 100 : 0;
                 CurrentOperation.getOperationParams().clear();
                 CurrentOperation.getOperationParams().put("threshold", String.valueOf(threshold));
-                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView);
+                task = new ContrastChangeTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
             }
         }
-        this.currentTask = task;
-        if (task != null && canExecute) {
-            task.execute();
+
+        if (task != null) {
+            this.currentTask = task;
         }
-//        if (BitmapHandle.getBitmapSource() != null) {
-//            if (task != null) {
-//
-//                task.execute(CurrentOperation.getCurrentOperationName());
-//            }
-//        } else {
-//            OpenImageDialogFragment myDialogFragment = new OpenImageDialogFragment();
-//            FragmentManager manager = getSupportFragmentManager();
-//            FragmentTransaction transaction = manager.beginTransaction();
-//            myDialogFragment.show(transaction, "open_image_dialog");
-//        }
+        if (canExecute) {
+            executeCurrentTask();
+        }
     }
 
     public void executeCurrentTask() {
         currentTask.execute(CurrentOperation.getCurrentOperationName());
+    }
+
+    public void cancelCurrentTask() {
+        this.currentTask.cancel(true);
     }
 
     @Override
@@ -288,16 +296,17 @@ public class MainActivity extends AppCompatActivity {
             case R.id.lastOperationItem:
                 lastOperation();
                 break;
-            case R.id.open_file_item:
+            case R.id.openFileItem:
                 performFileSearch();
                 break;
-            case R.id.saveImage:
+            case R.id.saveImageItem:
                 saveImage();
                 break;
             case R.id.closeItem:
                 android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(1);
                 break;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -378,8 +387,11 @@ public class MainActivity extends AppCompatActivity {
                     parcelFileDescriptor.close();
                 }
             } catch (IOException e) {
-                Log.e(LOG_TAG, e.getMessage());
-                createInformationAlert(e.getMessage());
+                if (e.getMessage() != null) {
+                    Log.e(LOG_TAG, e.getMessage());
+                    createErrorAlert(e.getMessage());
+                }
+
             }
         }
     }
@@ -449,7 +461,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Could not create file " + newFile.getPath(), Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, e.getMessage());
+            if (e.getMessage() != null) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
             createInformationAlert("Could not save file. " + e.getMessage());
         } finally {
             if (fos != null) {
@@ -457,7 +471,9 @@ public class MainActivity extends AppCompatActivity {
                     fos.close();
                 } catch (IOException e) {
                     createInformationAlert("Could not save file. " + e.getMessage());
-                    Log.e(LOG_TAG, e.getMessage());
+                    if (e.getMessage() != null) {
+                        Log.e(LOG_TAG, e.getMessage());
+                    }
                 }
             }
         }

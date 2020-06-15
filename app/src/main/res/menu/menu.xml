@@ -4,10 +4,10 @@
         android:id="@+id/lastOperationItem"
         android:title="@string/lastOperation" />
     <item
-        android:id="@+id/open_file_item"
+        android:id="@+id/openFileItem"
         android:title="@string/open_file" />
     <item
-        android:id="@+id/saveImage"
+        android:id="@+id/saveImageItem"
         android:title="@string/save_file" />
     <item
         android:id="@+id/closeItem"

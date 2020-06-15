@@ -3,6 +3,7 @@ package education.artem.image_editor.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,31 +24,44 @@ public class MedianFilterTask extends ProcessTask {
 
     final int BITS = 256;
 
-
-    public MedianFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
-        super(currContext, imageView, status, progress, exec);
+    public MedianFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, TextView cancelView) {
+        super(currContext, imageView, status, progress, exec, cancelView);
     }
+
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        OperationName operationName = params[0];
-        switch (operationName) {
-            case MEDIAN_FILTER:
-                Map<String, String> filterParams = CurrentOperation.getOperationParams();
-                int matrixSize = filterParams.size() > 0 ? Integer.parseInt(filterParams.get("matrixSize")) : 3;
-                return medianFilter(BitmapHandle.getBitmapSource(), matrixSize, 0, false);
-            case BLUR:
-                return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.BLUR, 9, 0);
-            case GAUSSIAN_BLUR:
-                return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.GAUSSIAN_BLUR_5x5, 256, 0);
-            case SHARPEN:
-                return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.SHARPEN, 1, 0);
-            case EMBOSS:
-                return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.EMBOSS, 1, 0);
-            case IDENTITY:
-                return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.IDENTITY, 1, 0);
+        try {
+            OperationName operationName = params[0];
+            switch (operationName) {
+                case MEDIAN_FILTER:
+                    Map<String, String> filterParams = CurrentOperation.getOperationParams();
+                    int matrixSize = 3;
+                    if (filterParams.size() > 0) {
+                        String matrixSizeValue = filterParams.get("matrixSize");
+                        matrixSize = matrixSizeValue != null ? Integer.parseInt(matrixSizeValue) : 3;
+                    }
+                    return medianFilter(BitmapHandle.getBitmapSource(), matrixSize, 0, false);
+                case BLUR:
+                    return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.BLUR, 9, 0);
+                case GAUSSIAN_BLUR:
+                    return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.GAUSSIAN_BLUR_5x5, 256, 0);
+                case SHARPEN:
+                    return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.SHARPEN, 1, 0);
+                case EMBOSS:
+                    return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.EMBOSS, 1, 0);
+                case IDENTITY:
+                    return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.IDENTITY, 1, 0);
+            }
+            return medianFilter(BitmapHandle.getBitmapSource(), 3, 0, false);
+        } catch (Exception e) {
+            this.e = e;
+            if (e.getMessage() != null) {
+                Log.e(getClass().getName(), e.getMessage());
+            }
+            cancel(true);
         }
-        return medianFilter(BitmapHandle.getBitmapSource(), 3, 0, false);
+        return null;
     }
 
     private Bitmap medianFilter(Bitmap sourceBitmap,
@@ -93,6 +107,10 @@ public class MedianFilterTask extends ProcessTask {
                 height - filterOffset; offsetY++) {
             for (int offsetX = filterOffset; offsetX <
                     width - filterOffset; offsetX++) {
+                if (isCancelled()) {
+                    return null;
+                }
+
                 byteOffset = offsetY *
                         stride +
                         offsetX * 4;
@@ -126,8 +144,6 @@ public class MedianFilterTask extends ProcessTask {
             progress = (double) offsetY / top * 100;
             publishProgress((int) progress);
         }
-
-
         Bitmap resultBitmap = Bitmap.createBitmap(sourceBitmap);
 
         resultBitmap.copyPixelsFromBuffer(resultBuffer);

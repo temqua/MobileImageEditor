@@ -3,6 +3,7 @@ package education.artem.image_editor.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,18 +17,28 @@ import education.artem.image_editor.ProcessTask;
 
 public class GammaFilterTask extends ProcessTask {
 
-    public GammaFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
-        super(currContext, imageView, status, progress, exec);
+
+    public GammaFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, TextView cancelView) {
+        super(currContext, imageView, status, progress, exec, cancelView);
     }
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        double gamma = 1d;
-        String gammaStr = CurrentOperation.getOperationParams().get("gamma");
-        if (gammaStr != null) {
-            gamma = Double.parseDouble(gammaStr);
+        try {
+            double gamma = 1d;
+            String gammaStr = CurrentOperation.getOperationParams().get("gamma");
+            if (gammaStr != null) {
+                gamma = Double.parseDouble(gammaStr);
+            }
+            return gammaCorrection(BitmapHandle.getBitmapHandled(), gamma);
+        } catch (Exception e) {
+            this.e = e;
+            if (e.getMessage() != null) {
+                Log.e(getClass().getName(), e.getMessage());
+            }
+            cancel(true);
         }
-        return gammaCorrection(BitmapHandle.getBitmapHandled(), gamma);
+        return null;
     }
 
     public Bitmap gammaCorrection(Bitmap image, double gamma) {
@@ -38,6 +49,9 @@ public class GammaFilterTask extends ProcessTask {
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
+                if (isCancelled()) {
+                    return null;
+                }
                 if (!(i == 0 || j == 0 || i == width - 1 || j == height - 1)) {
                     int color = image.getPixel(i - 1, j - 1);
                     int indexR = Color.red(color);

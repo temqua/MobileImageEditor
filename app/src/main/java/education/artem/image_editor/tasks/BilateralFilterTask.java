@@ -2,6 +2,7 @@ package education.artem.image_editor.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -12,13 +13,25 @@ import education.artem.image_editor.ProcessTask;
 import education.artem.image_editor.filters.BilateralFilter;
 
 public class BilateralFilterTask extends ProcessTask {
-    public BilateralFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec) {
-        super(currContext, imageView, status, progress, exec);
+
+
+    public BilateralFilterTask(Context currContext, ImageView imageView, TextView status, ProgressBar progress, TextView exec, TextView cancelView) {
+        super(currContext, imageView, status, progress, exec, cancelView);
     }
 
     @Override
     protected Bitmap doInBackground(OperationName... params) {
-        return bilateralFilter(BitmapHandle.getBitmapSource(), 6, 3);
+
+        try {
+            return bilateralFilter(BitmapHandle.getBitmapSource(), 6, 3);
+        } catch (Exception e) {
+            this.e = e;
+            if (e.getMessage() != null) {
+                Log.e(getClass().getName(), e.getMessage());
+            }
+            cancel(true);
+        }
+        return null;
     }
 
     public Bitmap bilateralFilter(Bitmap sourceBitmap, float distanceSigma, float intensitySigma) {
@@ -31,6 +44,9 @@ public class BilateralFilterTask extends ProcessTask {
         Bitmap resultBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
         for (int x = 0; x < imageWidth; x++) {
             for (int y = 0; y < imageHeight; y++) {
+                if (isCancelled()) {
+                    return null;
+                }
                 float numeratorSumR = 0;
                 float numeratorSumG = 0;
                 float numeratorSumB = 0;
