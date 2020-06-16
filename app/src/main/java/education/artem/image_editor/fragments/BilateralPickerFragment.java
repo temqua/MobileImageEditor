@@ -52,10 +52,10 @@ public class BilateralPickerFragment extends AppCompatDialogFragment {
         layout.addView(intensityText);
         layout.addView(intensityPicker);
 
-        builder.setTitle("Bilateral filter")
-                .setMessage("Choose filter parameters")
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.cancel())
-                .setPositiveButton("Ok", ((dialog, which) -> {
+        builder.setTitle(R.string.bilateralFilter)
+                .setMessage(R.string.bilateralFilterDialog)
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
+                .setPositiveButton(R.string.ok, ((dialog, which) -> {
                     CurrentOperation.getOperationParams().put("distanceSigma", String.valueOf(this.distanceSigma));
                     CurrentOperation.getOperationParams().put("intensitySigma", String.valueOf(this.intensitySigma));
                     ((MainActivity) Objects.requireNonNull(getActivity())).executeCurrentTask();

@@ -17,10 +17,9 @@ public class OpenImageDialogFragment extends AppCompatDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.error)
-                .setMessage("Откройте изображение!")
+                .setMessage(R.string.openImageDialog)
                 .setIcon(R.drawable.ic_baseline_error_24)
-                .setPositiveButton("Открыть", (dialog, id) -> {
-                    // Закрываем окно
+                .setPositiveButton(R.string.open, (dialog, id) -> {
                     dialog.dismiss();
                     ((MainActivity) Objects.requireNonNull(getActivity())).performFileSearch();
                 });

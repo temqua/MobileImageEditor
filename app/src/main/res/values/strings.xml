@@ -18,6 +18,7 @@
     <string name="algorithm">Algorithm</string>
     <string name="processing_image">Processing image</string>
     <string name="close">Close</string>
+    <string name="open">Open</string>
     <string name="filterParam">Matrix size</string>
     <string name="edgeDetection">Edge detection method</string>
     <string name="contrastAlg">Contrasting algorithm</string>
@@ -26,9 +27,15 @@
     <string name="imageHandled">Image successfully handled</string>
     <string name="lastOperation">Last operation</string>
     <string name="gamma">Gamma</string>
+    <string name="openImageDialog">Open the image first!</string>
+    <string name="openImageError">Error while image open</string>
     <string name="distanceSigmaDialog">Choose distance sigma</string>
     <string name="intensitySigmaDialog">Choose intensity sigma</string>
     <string name="threshold">Threshold</string>
+    <string name="bilateralFilter">Bilateral filter</string>
+    <string name="bilateralFilterDialog">Choose filter parameters</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
     <string-array name="contrast_array">
         <item>Linear</item>
         <item>Histogram equalize</item>
@@ -52,6 +59,7 @@
         <item>Emboss</item>
         <item>Identity</item>
         <item>Bilateral</item>
+        <item>Unmask filter</item>
     </string-array>
     <string-array name="median_filter_array">
         <item>3x3</item>

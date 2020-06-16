@@ -18,5 +18,6 @@ public enum OperationName {
     GAUSSIAN_BLUR,
     EMBOSS,
     SHARPEN,
-    BILATERAL
+    BILATERAL,
+    UNSHARPEN
 }

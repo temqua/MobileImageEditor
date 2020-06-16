@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,10 @@ import education.artem.image_editor.CurrentOperation;
 import education.artem.image_editor.Matrix;
 import education.artem.image_editor.OperationName;
 import education.artem.image_editor.ProcessTask;
+import education.artem.image_editor.jhlabs.filters.BlurFilter;
+import education.artem.image_editor.jhlabs.filters.GaussianFilter;
+import education.artem.image_editor.jhlabs.filters.UnsharpFilter;
+import education.artem.image_editor.jhlabs.filters.util.AndroidUtils;
 
 public class MedianFilterTask extends ProcessTask {
 
@@ -52,6 +57,8 @@ public class MedianFilterTask extends ProcessTask {
                     return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.EMBOSS, 1, 0);
                 case IDENTITY:
                     return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.IDENTITY, 1, 0);
+                case UNSHARPEN:
+                    return convolutionFilter(BitmapHandle.getBitmapSource(), Matrix.UNMASK, -256, 0);
             }
             return medianFilter(BitmapHandle.getBitmapSource(), 3, 0, false);
         } catch (Exception e) {
@@ -62,6 +69,34 @@ public class MedianFilterTask extends ProcessTask {
             cancel(true);
         }
         return null;
+    }
+
+    private Bitmap unsharpenFilter(Bitmap sourceBitmap) {
+        UnsharpFilter filter = new UnsharpFilter();
+        int[] bitmap = AndroidUtils.bitmapToIntArray(sourceBitmap);
+        int[] editedInt = filter.filter(bitmap, sourceBitmap.getWidth(), sourceBitmap.getHeight());
+        Bitmap editedBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
+        editedBitmap.copyPixelsFromBuffer(IntBuffer.wrap(editedInt));
+
+        return editedBitmap;
+    }
+
+    private Bitmap blurFilter(Bitmap sourceBitmap) {
+        BlurFilter filter = new BlurFilter();
+        Bitmap editedBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
+        int[] bitmap = AndroidUtils.bitmapToIntArray(sourceBitmap);
+        int[] editedInt = filter.filter(bitmap, sourceBitmap.getWidth(), sourceBitmap.getHeight());
+        editedBitmap.copyPixelsFromBuffer(IntBuffer.wrap(editedInt));
+        return editedBitmap;
+    }
+
+    private Bitmap gaussianFilter(Bitmap sourceBitmap) {
+        GaussianFilter filter = new GaussianFilter();
+        Bitmap editedBitmap = sourceBitmap.copy(sourceBitmap.getConfig(), true);
+        int[] bitmap = AndroidUtils.bitmapToIntArray(sourceBitmap);
+        int[] editedInt = filter.filter(bitmap, sourceBitmap.getWidth(), sourceBitmap.getHeight());
+        editedBitmap.copyPixelsFromBuffer(IntBuffer.wrap(editedInt));
+        return editedBitmap;
     }
 
     private Bitmap medianFilter(Bitmap sourceBitmap,

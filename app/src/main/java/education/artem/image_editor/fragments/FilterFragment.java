@@ -38,38 +38,41 @@ public class FilterFragment extends Fragment {
         algorithmSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selected = filterAlgorithm.getItem(position).toString();
-                switch (selected) {
-                    case "Median filter":
+                switch (position) {
+                    case 0:
                         medianParams.setVisibility(View.VISIBLE);
                         break;
-                    case "Gamma correction":
+                    case 1:
                         CurrentOperation.setCurrentOperationName(OperationName.GAMMA_CORRECTION);
                         hideAllComponents(medianParams);
                         break;
-                    case "Blur":
+                    case 2:
                         CurrentOperation.setCurrentOperationName(OperationName.BLUR);
                         hideAllComponents(medianParams);
                         break;
-                    case "Gaussian blur":
+                    case 3:
                         CurrentOperation.setCurrentOperationName(OperationName.GAUSSIAN_BLUR);
                         hideAllComponents(medianParams);
                         break;
-                    case "Emboss":
+                    case 4:
                         CurrentOperation.setCurrentOperationName(OperationName.EMBOSS);
                         hideAllComponents(medianParams);
                         break;
-                    case "Identity":
+                    case 5:
                         hideAllComponents(medianParams);
                         CurrentOperation.setCurrentOperationName(OperationName.IDENTITY);
                         break;
-                    case "Sharpen":
+                    case 6:
                         hideAllComponents(medianParams);
                         CurrentOperation.setCurrentOperationName(OperationName.SHARPEN);
                         break;
-                    case "Bilateral":
+                    case 7:
                         hideAllComponents(medianParams);
                         CurrentOperation.setCurrentOperationName(OperationName.BILATERAL);
+                        break;
+                    case 8:
+                        hideAllComponents(medianParams);
+                        CurrentOperation.setCurrentOperationName(OperationName.UNSHARPEN);
                         break;
                 }
             }
@@ -82,25 +85,9 @@ public class FilterFragment extends Fragment {
         parameterSpinner.setAdapter(filterParameter);
         parameterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                CharSequence seq = filterParameter.getItem(position);
-                String selected = seq != null ? seq.toString() : "3x3";
-                switch (selected) {
-                    case "3x3":
-                        CurrentOperation.getOperationParams().put("matrixSize", "3");
-                        break;
-                    case "5x5":
-                        CurrentOperation.getOperationParams().put("matrixSize", "5");
-                        break;
-                    case "7x7":
-                        CurrentOperation.getOperationParams().put("matrixSize", "7");
-                        break;
-                    case "9x9":
-                        CurrentOperation.getOperationParams().put("matrixSize", "9");
-                        break;
-                    case "11x11":
-                        CurrentOperation.getOperationParams().put("matrixSize", "11");
-                        break;
-                }
+                int p = (position < 0) ? 1 : position + 1;
+                int matrixSize = (p * 2) + 1;
+                CurrentOperation.getOperationParams().put("matrixSize", String.valueOf(matrixSize));
             }
 
             public void onNothingSelected(AdapterView<?> parent) {

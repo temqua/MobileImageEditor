@@ -2,7 +2,6 @@ package education.artem.image_editor;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,7 +12,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -36,7 +34,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -50,6 +47,8 @@ import education.artem.image_editor.tasks.ContoursTask;
 import education.artem.image_editor.tasks.ContrastChangeTask;
 import education.artem.image_editor.tasks.GammaFilterTask;
 import education.artem.image_editor.tasks.MedianFilterTask;
+import education.artem.image_editor.tasks.OpenImageTask;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -155,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void createErrorAlert(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(getResources().getString(R.string.info))
+        builder.setTitle(R.string.error)
                 .setMessage(message)
                 .setCancelable(false)
                 .setPositiveButton("Ok", (dialog, which) -> dialog.cancel())
@@ -229,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                         gamma = 0.1;
                         task = new GammaFilterTask(MainActivity.this, mImageView, statusView, progressBar, execTimeTextView, cancelTaskTextView);
                         canExecute = false;
-                        createNumberDialog("Gamma", "Choose gamma", new String[]{"0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"}, 0, 9, (dialog, which) -> {
+                        createNumberDialog("Gamma", "Choose gamma", new String[]{"0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3"}, 0, 12, (dialog, which) -> {
                             CurrentOperation.getOperationParams().clear();
                             CurrentOperation.getOperationParams().put("gamma", String.valueOf(gamma));
                             dialog.dismiss();
@@ -283,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultData != null) {
                 uri = resultData.getData();
                 dumpImageMetaData(uri);
-                OpenImageTask task = new OpenImageTask();
+                OpenImageTask task = new OpenImageTask(MainActivity.this, mImageView);
                 task.execute(uri);
             }
             // END_INCLUDE (parse_open_document_response)
@@ -319,27 +318,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int calculateInSampleSize(BitmapFactory.Options options,
-                                      int reqWidth, int reqHeight) {
-        // Реальные размеры изображения
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Вычисляем наибольший inSampleSize, который будет кратным двум
-            // и оставит полученные размеры больше, чем требуемые
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-        return inSampleSize;
-    }
 
     public void dumpImageMetaData(Uri uri) {
 
@@ -359,40 +337,6 @@ public class MainActivity extends AppCompatActivity {
                         cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 Log.i(LOG_TAG, "Display Name: " + displayName);
                 BitmapHandle.setFileName(displayName);
-            }
-        }
-    }
-
-    private Bitmap getBitmapFromUri(Uri uri) {
-        ParcelFileDescriptor parcelFileDescriptor = null;
-        try {
-            parcelFileDescriptor =
-                    getContentResolver().openFileDescriptor(uri, "r");
-            assert parcelFileDescriptor != null;
-            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-            options.inSampleSize = calculateInSampleSize(options, 1000,
-                    1000);
-            options.inJustDecodeBounds = false;
-            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
-            parcelFileDescriptor.close();
-            return image;
-        } catch (Exception e) {
-            createInformationAlert("Ошибка открытия изображения. " + e.getMessage());
-            return null;
-        } finally {
-            try {
-                if (parcelFileDescriptor != null) {
-                    parcelFileDescriptor.close();
-                }
-            } catch (IOException e) {
-                if (e.getMessage() != null) {
-                    Log.e(LOG_TAG, e.getMessage());
-                    createErrorAlert(e.getMessage());
-                }
-
             }
         }
     }
@@ -517,39 +461,39 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setTitle(title)
                 .setMessage(message)
-                .setNegativeButton("cancel", (dialog, which) -> dialog.cancel())
-                .setPositiveButton("Ok", positiveListener);
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel())
+                .setPositiveButton(R.string.ok, positiveListener);
         builder.setView(numberPicker);
         AlertDialog alert = builder.create();
         alert.show();
     }
 
-    private class OpenImageTask extends AsyncTask<Uri, Void, Void> {
-
-
-        ProgressDialog progressDialog;
-
-        @Override
-        protected Void doInBackground(Uri... uris) {
-            Uri selectedUri = uris[0];
-            Bitmap bitmap = getBitmapFromUri(selectedUri);
-            BitmapHandle.setBitmapSource(bitmap);
-            BitmapHandle.setBitmapHandled(bitmap);
-            return null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(MainActivity.this,
-                    "ProgressDialog",
-                    "Opening image...");
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            // execution of result of Long time consuming operation
-            progressDialog.dismiss();
-            mImageView.setImageBitmap(BitmapHandle.getBitmapSource());
-        }
-    }
+//    private class OpenImageTask extends AsyncTask<Uri, Void, Void> {
+//
+//
+//        ProgressDialog progressDialog;
+//
+//        @Override
+//        protected Void doInBackground(Uri... uris) {
+//            Uri selectedUri = uris[0];
+//            Bitmap bitmap = getBitmapFromUri(selectedUri);
+//            BitmapHandle.setBitmapSource(bitmap);
+//            BitmapHandle.setBitmapHandled(bitmap);
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            progressDialog = ProgressDialog.show(MainActivity.this,
+//                    "ProgressDialog",
+//                    "Opening image...");
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void result) {
+//            // execution of result of Long time consuming operation
+//            progressDialog.dismiss();
+//            mImageView.setImageBitmap(BitmapHandle.getBitmapSource());
+//        }
+//    }
 }

@@ -45,10 +45,22 @@ public class Matrix {
             {1, 1, 1},
             {1, 1, 1}
     };
+    public static final double[][] GAUSSIAN_BLUR_3x3 = new double[][]{
+            {1, 2, 1},
+            {2, 4, 2},
+            {1, 2, 1},
+    };
     public static final double[][] GAUSSIAN_BLUR_5x5 = new double[][]{
             {1, 4, 6, 4, 1},
             {4, 16, 24, 16, 4},
             {6, 24, 36, 24, 6},
+            {4, 16, 24, 16, 4},
+            {1, 4, 6, 4, 1}
+    };
+    public static final double[][] UNMASK = new double[][]{
+            {1, 4, 6, 4, 1},
+            {4, 16, 24, 16, 4},
+            {6, 24, -476, 24, 6},
             {4, 16, 24, 16, 4},
             {1, 4, 6, 4, 1}
     };
