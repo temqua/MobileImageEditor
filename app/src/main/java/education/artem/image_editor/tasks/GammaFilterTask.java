@@ -15,8 +15,8 @@ import education.artem.image_editor.BitmapHandle;
 import education.artem.image_editor.CurrentOperation;
 import education.artem.image_editor.OperationName;
 import education.artem.image_editor.ProcessTask;
-import education.artem.image_editor.jhlabs.filters.GammaFilter;
-import education.artem.image_editor.jhlabs.filters.util.AndroidUtils;
+//import education.artem.image_editor.jhlabs.filters.GammaFilter;
+//import education.artem.image_editor.jhlabs.filters.util.AndroidUtils;
 
 public class GammaFilterTask extends ProcessTask {
 
@@ -45,14 +45,14 @@ public class GammaFilterTask extends ProcessTask {
     }
 
     public Bitmap gammaCorr(Bitmap image, double gamma) {
-        Bitmap editedBitmap = image.copy(image.getConfig(), true);
-        GammaFilter filter = new GammaFilter();
-        float g = (float) gamma;
-        filter.setGamma(g);
-        int[] bitmap = AndroidUtils.bitmapToIntArray(image);
-        int[] editedInt = filter.filter(bitmap, image.getWidth(), image.getHeight());
-        editedBitmap.copyPixelsFromBuffer(IntBuffer.wrap(editedInt));
-        return editedBitmap;
+//        Bitmap editedBitmap = image.copy(image.getConfig(), true);
+//        GammaFilter filter = new GammaFilter();
+//        float g = (float) gamma;
+//        filter.setGamma(g);
+//        int[] bitmap = AndroidUtils.bitmapToIntArray(image);
+//        int[] editedInt = filter.filter(bitmap, image.getWidth(), image.getHeight());
+//        editedBitmap.copyPixelsFromBuffer(IntBuffer.wrap(editedInt));
+        return image;
     }
 
 

@@ -3,8 +3,10 @@ package education.artem.image_editor.fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatDialogFragment;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -15,7 +17,7 @@ import education.artem.image_editor.CurrentOperation;
 import education.artem.image_editor.MainActivity;
 import education.artem.image_editor.R;
 
-public class BilateralPickerFragment extends AppCompatDialogFragment {
+public class BilateralPickerFragment extends DialogFragment {
 
     private double intensitySigma;
     private double distanceSigma;
